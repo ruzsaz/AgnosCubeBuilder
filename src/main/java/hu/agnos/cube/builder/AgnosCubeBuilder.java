@@ -1,6 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
 package hu.agnos.cube.builder;
 
 import hu.agnos.cube.specification.entity.CubeSpecification;
@@ -63,9 +60,9 @@ public class AgnosCubeBuilder {
                 CubeSpecification xmlCube = cubeRepo.findCubeSpecificationByPath(xmlPath);
                 if (xmlCube != null) {
 
-                    Cube cube = getCube(cubeUniqueName, imputTableName, xmlCube);
+                    Cube cube = createCube(cubeUniqueName, imputTableName, xmlCube);
                     if (cube != null) {
-                        setCube(cube, outputDirName);
+                        saveCube(cube, outputDirName);
                     }
                 } else {
                     result = 2;
@@ -81,7 +78,7 @@ public class AgnosCubeBuilder {
         System.exit(result);
     }
 
-    private static Cube getCube(String cubeUniqueName, String imputTableName, CubeSpecification xmlCube) {
+    private static Cube createCube(String cubeUniqueName, String imputTableName, CubeSpecification xmlCube) {
         Connection conn = null;
         Statement statement = null;
         Cube cube = null;
@@ -125,7 +122,7 @@ public class AgnosCubeBuilder {
         }
     }
 
-    public static void setCube(Cube cube, String path) {
+    public static void saveCube(Cube cube, String path) {
         try {
 
             if (!path.endsWith("/")) {

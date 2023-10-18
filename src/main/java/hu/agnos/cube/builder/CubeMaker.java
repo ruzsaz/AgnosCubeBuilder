@@ -44,10 +44,10 @@ public class CubeMaker {
 //        preCube.printer();
 
         logger.debug("convert preCube to cube");
-        (new Step5()).converPreCube2Cube(cube, preCube);
+        (new Step5()).convertPreCube2Cube(cube, preCube);
 
         logger.debug("refresh cube header");
-        (new Step6()).refressCubeHeader(cube);
+        (new Step6()).refreshCubeHeader(cube);
 
         logger.debug("finished");
         return cube;

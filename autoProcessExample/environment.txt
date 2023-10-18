@@ -1,0 +1,16 @@
+# Local directory containing the cubes. It will be volumed to the CubeServer containers.
+
+CUBES_DIR=/home/agnos/Agnos/Data/Cubes
+
+ORIGINAL_ACCESS_LOGS=/home/agnos/log/agnos_access_logs.csv
+ACCESS_LOGS=/home/agnos/autoLogProcess/input/agnos_access_logs.csv
+TARGET_CUBE=AGNOS_LOGS
+
+POSTGRES_OUT_PORT=15432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres123
+
+POSTGRES_CONTAINER_NAME=PostgresContainer
+ROLLUP_CONTAINER_NAME=RollupBuilderContainer
+CUBEBUILDER_CONTAINER_NAME=CubeBuilderContainer
+

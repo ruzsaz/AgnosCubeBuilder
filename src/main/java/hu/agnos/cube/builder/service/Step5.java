@@ -26,7 +26,7 @@ public class Step5 {
      * @param cube az a Cube amelybe az adatokat töltjük
      * @param preCube az imputadatokat tartalmazó RawCube
      */
-     public void converPreCube2Cube(Cube cube, RawCube preCube) {
+     public void convertPreCube2Cube(Cube cube, RawCube preCube) {
 
          // a Cells átmásolása
         cube.setCells(new Cells(preCube.getPreCells().getCells()));

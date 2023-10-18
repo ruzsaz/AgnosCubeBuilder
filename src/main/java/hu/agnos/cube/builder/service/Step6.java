@@ -13,7 +13,7 @@ import hu.agnos.molap.Cube;
  */
 public class Step6 {
     
-    public void refressCubeHeader(Cube cube){
+    public void refreshCubeHeader(Cube cube){
         cube.refreshHeader();
     }
 }

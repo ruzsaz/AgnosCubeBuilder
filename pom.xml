@@ -42,9 +42,9 @@
             <type>pom</type>
         </dependency>
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.1-901-1.jdbc4</version>
+            <version>42.6.0</version>
         </dependency>
         <dependency>
             <groupId>trove</groupId>
@@ -65,8 +65,8 @@
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>19</maven.compiler.source>
-        <maven.compiler.target>19</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <exec.mainClass>hu.agnos.cube.builder.AgnosCubeBuilder</exec.mainClass>
     </properties>
     <build>

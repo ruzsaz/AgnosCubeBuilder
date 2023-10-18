@@ -149,16 +149,8 @@ public class Step3 {
                         preCells.addCell(rowID, i, measure);
                     }
 
-//                m  = System.nanoTime();
-//                
-//                System.out.println("node measure kinyerése: " + (m-e));
-//                e=m;
                     processDimensionRow(preNodes, dimensionIndex, preCube);
 
-//                m  = System.nanoTime();
-//                
-//                System.out.println("processDimensionRow: " + (m-e));
-//                e=m;
                     rowID++;
                 }
             }
@@ -219,26 +211,14 @@ public class Step3 {
 
         RawNode parentNode = hierarchy.getRoot();
 
-//        long m  = System.nanoTime();
-//                
-//                System.out.println("hierarchy.getRoot(): " + (m-e));
-//                e=m;
-//root factTableRowId feltöltése
+        // factTableRowId feltöltése
         for (int rowId : preNodes.get(0).getFactTableRowIds().toArray()) {
 
             parentNode.addFactTableRowId(rowId);
-//             m  = System.nanoTime();
-//                
-//                System.out.println(" parentNode.addFactTableRowId: " + (m-e));
-//                e=m;
         }
 
         for (int j = 0; j < preNodes.size(); j++) {
 
-//             m  = System.nanoTime();
-//                
-//                System.out.println(" existingNode: " + (m-e));
-//                e=m;
             RawNode actualNode = preNodes.get(j);
             RawNode existingNode = parentNode.getChild(actualNode.getCode());
 
@@ -339,7 +319,7 @@ public class Step3 {
             idx++;
         }
 
-        List<RawNode> hierNodes = new ArrayList();
+        List<RawNode> hierNodes = new ArrayList<>();
 
         for (int i = 0; i < preNodes.size(); i++) {
             int dimIdx = nodeIndexes[i][0];
