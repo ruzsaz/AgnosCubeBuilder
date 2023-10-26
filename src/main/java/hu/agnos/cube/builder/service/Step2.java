@@ -5,12 +5,11 @@
  */
 package hu.agnos.cube.builder.service;
 
-import hu.agnos.molap.Cube;
-import hu.agnos.molap.dimension.Dimension;
-import hu.agnos.molap.dimension.Hierarchy;
-import hu.agnos.molap.dimension.Level;
-import hu.agnos.molap.measure.AbstractMeasure;
-import hu.agnos.molap.measure.Measures;
+import hu.agnos.cube.Cube;
+import hu.agnos.cube.dimension.Dimension;
+import hu.agnos.cube.dimension.Level;
+import hu.agnos.cube.measure.AbstractMeasure;
+import hu.agnos.cube.measure.Measures;
 import java.util.List;
 import hu.agnos.cube.builder.entity.sql.SqlCube;
 import hu.agnos.cube.builder.entity.sql.SqlDimension;
@@ -23,9 +22,9 @@ import hu.agnos.cube.builder.entity.sql.SqlMeasure;
  * @author parisek
  */
 public class Step2 {
-    
-     public SqlCube getSQLCube(Cube cube, String sourceDBDriver) {
-        SqlCube sqlCube = new SqlCube(cube.getSourceTableName(), sourceDBDriver);
+
+    public SqlCube getSQLCube(Cube cube, String sourceDBDriver, String sourceTableName) {
+        SqlCube sqlCube = new SqlCube(sourceTableName, sourceDBDriver);
 
         List<Dimension> dimensions = cube.getDimensions();
 
@@ -34,21 +33,17 @@ public class Step2 {
         for (Dimension dim : dimensions) {
             SqlDimension sqlDim = new SqlDimension();
 
-            Hierarchy[] hierarchies = dim.getHierarchies();
+            boolean isOfflineCalculated = dim.isOfflineCalculated();
 
-            for (Hierarchy hier : hierarchies) {
-                boolean isOLAP = hier.isPartitioned();
+            SqlHierarchy sqlHier = new SqlHierarchy(dim.getName(), isOfflineCalculated);
 
-                SqlHierarchy sqlHier = new SqlHierarchy(hier.getHierarchyUniqueName(), isOLAP);
-
-                List<Level> levels = hier.getLevels();
-                for (int levelIdx = 1; levelIdx < levels.size(); levelIdx++) {
-                    Level level = levels.get(levelIdx);
-                    SqlLevel sqlLevel = new SqlLevel(level.getCodeColumnName(), level.getNameColumnName());
-                    sqlHier.addLevel(sqlLevel);
-                }
-                sqlDim.addHierarchy(sqlHier);
+            List<Level> levels = dim.getLevels();
+            for (int levelIdx = 1; levelIdx < levels.size(); levelIdx++) {
+                Level level = levels.get(levelIdx);
+                SqlLevel sqlLevel = new SqlLevel(level.getCodeColumnName(), level.getNameColumnName());
+                sqlHier.addLevel(sqlLevel);
             }
+            sqlDim.addHierarchy(sqlHier);
 
             sqlDim.handleDuplicates();
             sqlCube.addDimension(sqlDim);

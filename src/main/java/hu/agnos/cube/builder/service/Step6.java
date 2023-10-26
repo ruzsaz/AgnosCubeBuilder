@@ -5,7 +5,7 @@
  */
 package hu.agnos.cube.builder.service;
 
-import hu.agnos.molap.Cube;
+import hu.agnos.cube.Cube;
 
 /**
  *
@@ -14,6 +14,6 @@ import hu.agnos.molap.Cube;
 public class Step6 {
     
     public void refressCubeHeader(Cube cube){
-        cube.refreshHeader();
+//        cube.refreshHeader();
     }
 }

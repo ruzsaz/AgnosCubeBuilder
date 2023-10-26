@@ -6,11 +6,17 @@
 package hu.agnos.cube.builder.entity.raw;
 
 import java.util.HashMap;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  *
  * @author parisek
  */
+@Getter
+@Setter
+@ToString
 public class RawHierarchy {
 
     private final RawNode root;
@@ -19,12 +25,12 @@ public class RawHierarchy {
 
     private final String hierarchyUniqeName;
 
-    private final boolean isOLAP;
+    private final boolean isOfflineCalculated;
 
-    public RawHierarchy(String hierarchyUniqeName, boolean isOLAP) {
+    public RawHierarchy(String hierarchyUniqeName, boolean isOfflineCalculated) {
         this.root = new RawNode(0, "All", "All");
         this.hierarchyUniqeName = hierarchyUniqeName;
-        this.isOLAP = isOLAP;
+        this.isOfflineCalculated = isOfflineCalculated;
     }
 
     public RawNode[] getBaseLevelNode() {
@@ -44,18 +50,9 @@ public class RawHierarchy {
         return result;
     }
 
-    public String getHierarchyUniqeName() {
-        return hierarchyUniqeName;
-    }
-
-    public RawNode getRoot() {
-        return root;
-    }
-
-    public boolean isOLAP() {
-        return this.isOLAP;
-    }
-
+   
+   
+   
 
     private int[] getNodeIdsAuxArray() {
         int depth = getDepth();
@@ -185,10 +182,6 @@ public class RawHierarchy {
         root.print();
     }
 
-    @Override
-    public String toString() {
-        return "RawHierarchy{" + "root=" + root + ", nodes=" + nodes + ", hierarchyUniqeName=" + hierarchyUniqeName + ", isOLAP=" + isOLAP + '}';
-    }
 
     
 }

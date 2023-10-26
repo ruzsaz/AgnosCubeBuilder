@@ -11,7 +11,7 @@ import hu.agnos.cube.builder.service.Step3;
 import hu.agnos.cube.builder.service.Step4;
 import hu.agnos.cube.builder.service.Step5;
 import hu.agnos.cube.builder.service.Step6;
-import hu.agnos.molap.Cube;
+import hu.agnos.cube.Cube;
 import hu.agnos.cube.builder.entity.raw.RawCube;
 import hu.agnos.cube.builder.entity.sql.SqlCube;
 import hu.agnos.cube.specification.entity.CubeSpecification;
@@ -34,7 +34,7 @@ public class CubeMaker {
         Cube cube = (new Step1()).createCubeWithMeta(xmlCube, cubeUniqueName, sourceTableName);
 
         logger.debug("create sqlcube");
-        SqlCube sqlCube = (new Step2()).getSQLCube(cube, xmlCube.getSourceDBDriver());
+        SqlCube sqlCube = (new Step2()).getSQLCube(cube, xmlCube.getSourceDBDriver(), sourceTableName);
 
         logger.debug("create precube");
         RawCube preCube = (new Step3()).getPreCube(sqlCube, cubeUniqueName, xmlCube);
@@ -45,10 +45,11 @@ public class CubeMaker {
 
         logger.debug("convert preCube to cube");
         (new Step5()).converPreCube2Cube(cube, preCube);
-
+//TODO: ez jelenleg üres művelet
         logger.debug("refresh cube header");
         (new Step6()).refressCubeHeader(cube);
 
+        
         logger.debug("finished");
         return cube;
 

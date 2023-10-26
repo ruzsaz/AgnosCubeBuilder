@@ -5,10 +5,15 @@
  */
 package hu.agnos.cube.builder.entity.sql;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  *
  * @author parisek
  */
+@Getter
+@Setter
 public class SqlLevel {
 
     private final String code;
@@ -40,29 +45,6 @@ public class SqlLevel {
        
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getCodeAlias() {
-        return codeAlias;
-    }
-
-    public void setCodeAlias(String codeAlias) {
-        this.codeAlias = codeAlias;
-    }
-
-    public String getNameAlias() {
-        return nameAlias;
-    }
-
-    public void setNameAlias(String nameAlias) {
-        this.nameAlias = nameAlias;
-    }
 
     public boolean hasCodeAlias() {
         return !this.code.equals(this.codeAlias);

@@ -145,7 +145,7 @@ public class Step3 {
 
                     for (int i = 0; i < measureCnt; i++) {
                         int index = dimensionColumnCnt + 1 + i;
-                        double measure = rSet.getBigDecimal(index).doubleValue();
+                        float measure = rSet.getFloat(index);
                         preCells.addCell(rowID, i, measure);
                     }
 
@@ -162,7 +162,7 @@ public class Step3 {
                     rowID++;
                 }
             }
-            preCube.setPreCells(preCells);
+            preCube.setRawCells(preCells);
 
         } catch (SQLException ex) {
             logger.error(ex.getMessage());
@@ -195,7 +195,7 @@ public class Step3 {
      */
     private void processHierarchyRow(List<RawNode> preNodes, RawHierarchy hierarchy) {
 
-        if (hierarchy.isOLAP()) {
+        if (hierarchy.isOfflineCalculated()) {
             processOLAPHierarchyRow(preNodes, hierarchy);
         } else {
             processNotOLAPHierarchyRow(preNodes, hierarchy);

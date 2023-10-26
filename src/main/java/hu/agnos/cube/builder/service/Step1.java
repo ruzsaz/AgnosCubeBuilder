@@ -5,13 +5,12 @@
  */
 package hu.agnos.cube.builder.service;
 
-import hu.agnos.molap.Cube;
-import hu.agnos.molap.dimension.Dimension;
-import hu.agnos.molap.dimension.Hierarchy;
-import hu.agnos.molap.dimension.Level;
-import hu.agnos.molap.measure.CalculatedMeasure;
-import hu.agnos.molap.measure.Measure;
-import hu.agnos.molap.measure.Measures;
+import hu.agnos.cube.Cube;
+import hu.agnos.cube.dimension.Dimension;
+import hu.agnos.cube.dimension.Level;
+import hu.agnos.cube.measure.CalculatedMeasure;
+import hu.agnos.cube.measure.Measure;
+import hu.agnos.cube.measure.Measures;
 import hu.agnos.cube.specification.entity.CubeSpecification;
 import hu.agnos.cube.specification.entity.HierarchySpecification;
 import hu.agnos.cube.specification.entity.LevelSpecification;
@@ -25,7 +24,7 @@ public class Step1 {
 
     public Cube createCubeWithMeta(CubeSpecification xmlCube, String cubeUniqueName, String sourceTableName) {
         Cube cube = new Cube(cubeUniqueName);
-        cube.setSourceTableName(sourceTableName);
+//        cube.setSourceTableName(sourceTableName);
 
         loadMeasure(cube, xmlCube);
         loadHierarchy(cube, xmlCube);
@@ -53,23 +52,19 @@ public class Step1 {
         int dimIdx = 0;
 
         for (HierarchySpecification xmlHierarchy : xmlCube.getHierarchies()) {
-            int hierIdx = 0;
             String hierarchyName = xmlHierarchy.getUniqueName();
 
-            Dimension dim = new Dimension(hierarchyName, 1);
-
             boolean isOfflineCalculated = xmlHierarchy.isOfflineCalculated();
-            Hierarchy hier = new Hierarchy(hierarchyName, isOfflineCalculated);
+            Dimension dim = new Dimension(hierarchyName, isOfflineCalculated);
             for (LevelSpecification xmlLevel : xmlHierarchy.getLevels()) {
 
                 String levelName = xmlLevel.getUniqueName();
                 String codeColumnName = xmlLevel.getCodeColumnName();
                 String nameColumnName = xmlLevel.getNameColumnName();
                 int depth = xmlLevel.getDepth();
-                Level level = new Level(levelName, "", codeColumnName, nameColumnName, depth);
-                hier.addLevel(level);
+                Level level = new Level(depth, levelName, null, codeColumnName, nameColumnName);
+                dim.addLevel(level);
             }
-            dim.addHierarchy(hierIdx, hier);
             cube.addDimension(dimIdx, dim);
             dimIdx++;
         }

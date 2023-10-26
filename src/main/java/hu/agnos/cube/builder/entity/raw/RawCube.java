@@ -6,55 +6,46 @@
 package hu.agnos.cube.builder.entity.raw;
 
 import java.util.HashMap;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
  * @author parisek
  */
+@Getter
+@Setter
 public class RawCube {
     
-    public HashMap<Integer, RawDimension> dimensions;
-    private RawCells preCells;
+    public HashMap<Integer, RawDimension> rawDimensions;
+    private RawCells rawCells;
 
     public RawCube() {
-        this.dimensions = new HashMap();
+        this.rawDimensions = new HashMap();
     }
 
-    public RawCells getPreCells() {
-        return preCells;
-    }
-
-    public void setPreCells(RawCells preCells) {
-        this.preCells = preCells;
-    }
-
-    
-    public HashMap<Integer,RawDimension> getDimensions() {
-        return dimensions;
-    }
-    
     public RawDimension getDimension(Integer idx) {
-        if(this.dimensions.containsKey(idx)){
-            return this.dimensions.get(idx);
+        if(this.rawDimensions.containsKey(idx)){
+            return this.rawDimensions.get(idx);
         }
         return null;
     }
     
     public void addDimension(Integer idx, RawDimension dim){
-        if(! this.dimensions.containsKey(idx)){
-            this.dimensions.put(idx, dim);
+        if(! this.rawDimensions.containsKey(idx)){
+            this.rawDimensions.put(idx, dim);
         }
     }
     
     public void printer(){
-        for(RawDimension dim : this.dimensions.values()){
+        for(RawDimension dim : this.rawDimensions.values()){
             dim.printer();
             System.out.println("\n*******************************************\n");
         }
     }
      
     public void postProcess(){
-         for(RawDimension dim : this.dimensions.values()){
+         for(RawDimension dim : this.rawDimensions.values()){
              dim.postProcess();
          }       
     }

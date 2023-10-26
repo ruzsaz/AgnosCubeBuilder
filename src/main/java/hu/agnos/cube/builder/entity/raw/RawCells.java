@@ -5,41 +5,37 @@
  */
 package hu.agnos.cube.builder.entity.raw;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  *
  * @author parisek
  */
+@Getter
+@Setter
 public class RawCells {
     
-    double [][] cells;
+    float [][] cells;
 
     public RawCells(int rowCont, int columnCnt) {
-        this.cells = new double[columnCnt] [rowCont];
+        this.cells = new float[columnCnt] [rowCont];
     }
         
-    public double getCell (int rowCont, int columnCnt) {
+    public float getCell (int rowCont, int columnCnt) {
         return this.cells[columnCnt] [rowCont];
     }
     
-    public double[] getColumn (int columnIdx) {
+    public float[] getColumn (int columnIdx) {
         return this.cells[columnIdx];
     }
 
-    public void addCell(int rowIdx, int columnIdx, double value) {
+    public void addCell(int rowIdx, int columnIdx, float value) {
         this.cells[columnIdx] [rowIdx] = value;
     }
     
-    public void addColumn(int columnIdx, double[] values) {
+    public void addColumn(int columnIdx, float[] values) {
         this.cells[columnIdx] = values;
-    }
-
-    public double[][] getCells() {
-        return cells;
-    }
-
-    public void setCells(double[][] cells) {
-        this.cells = cells;
     } 
-    
     
 }
