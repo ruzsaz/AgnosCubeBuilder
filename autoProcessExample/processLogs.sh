@@ -41,7 +41,7 @@ docker cp ${CUBEBUILDER_CONTAINER_NAME}:/result/${TARGET_CUBE}.cube ./${TARGET_C
 mv ./${TARGET_CUBE}.cube "${CUBES_DIR}/${TARGET_CUBE}.cube"
 
 # Stop the containers
-docker-compose down
+docker-compose down --volumes
 docker rm ${ROLLUP_CONTAINER_NAME} ${CUBEBUILDER_CONTAINER_NAME}
 
 # Refresh the cube server

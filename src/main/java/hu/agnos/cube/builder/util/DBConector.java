@@ -61,7 +61,7 @@ public class DBConector {
             stmt = connection.createStatement();
             stmt.execute(sql);
             connection.commit();
-        } catch (ClassNotFoundException | SQLException ex) {           
+        } catch (ClassNotFoundException | SQLException ignored) {
         } finally {
             if (stmt != null) {
                 try {
