@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import hu.agnos.cube.builder.entity.raw.RawCells;
 import hu.agnos.cube.builder.entity.raw.RawCube;
-import hu.agnos.cube.builder.entity.raw.RawHierarchy;
+import hu.agnos.cube.builder.entity.raw.RawDimension;
 import hu.agnos.cube.builder.entity.raw.RawNode;
 import hu.agnos.cube.builder.entity.sql.SqlCube;
 import hu.agnos.cube.builder.util.DBConector;
@@ -193,7 +193,7 @@ public class Step3 {
      * @param preNodes a feldolgozandó node-ok listája
      * @param hierarchy az a hierarchia, amelybe a nodokat bele kell rakni
      */
-    private void processHierarchyRow(List<RawNode> preNodes, RawHierarchy hierarchy) {
+    private void processHierarchyRow(List<RawNode> preNodes, RawDimension hierarchy) {
 
         if (hierarchy.isOfflineCalculated()) {
             processOLAPHierarchyRow(preNodes, hierarchy);
@@ -213,7 +213,7 @@ public class Step3 {
      * @param preNodes a feldolgozandó node-ok listája
      * @param hierarchy az a hierarchia, amelybe a nodokat bele kell rakni
      */
-    private void processNotOLAPHierarchyRow(List<RawNode> preNodes, RawHierarchy hierarchy) {
+    private void processNotOLAPHierarchyRow(List<RawNode> preNodes, RawDimension hierarchy) {
 
         long e = System.nanoTime();
 
@@ -265,7 +265,7 @@ public class Step3 {
      * @param preNodes a feldolgozandó node-ok listája
      * @param hierarchy az a hierarchia, amelybe a nodokat bele kell rakni
      */
-    private void processOLAPHierarchyRow(List<RawNode> preNodes, RawHierarchy hierarchy) {
+    private void processOLAPHierarchyRow(List<RawNode> preNodes, RawDimension hierarchy) {
         int lastNonAggregetedNodeIdx = -1;
         int i = 0;
         int preNodesSize = preNodes.size();
@@ -350,7 +350,7 @@ public class Step3 {
                 hierNodes.add(preNodes.get(i));
                 i++;
             }
-            processHierarchyRow(hierNodes, preCube.getDimension(dimIdx).getHierarchy(hierIdx));
+            processHierarchyRow(hierNodes, preCube.getDimension(dimIdx).getDimension(hierIdx));
 
             hierNodes = new ArrayList();
             i--;

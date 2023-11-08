@@ -17,35 +17,35 @@ import lombok.Setter;
 @Setter
 public class RawCube {
     
-    public HashMap<Integer, RawDimension> rawDimensions;
+    public HashMap<Integer, RawDimensions> rawDimensions;
     private RawCells rawCells;
 
     public RawCube() {
         this.rawDimensions = new HashMap();
     }
 
-    public RawDimension getDimension(Integer idx) {
+    public RawDimensions getDimension(Integer idx) {
         if(this.rawDimensions.containsKey(idx)){
             return this.rawDimensions.get(idx);
         }
         return null;
     }
     
-    public void addDimension(Integer idx, RawDimension dim){
+    public void addDimension(Integer idx, RawDimensions dim){
         if(! this.rawDimensions.containsKey(idx)){
             this.rawDimensions.put(idx, dim);
         }
     }
     
     public void printer(){
-        for(RawDimension dim : this.rawDimensions.values()){
+        for(RawDimensions dim : this.rawDimensions.values()){
             dim.printer();
             System.out.println("\n*******************************************\n");
         }
     }
      
     public void postProcess(){
-         for(RawDimension dim : this.rawDimensions.values()){
+         for(RawDimensions dim : this.rawDimensions.values()){
              dim.postProcess();
          }       
     }

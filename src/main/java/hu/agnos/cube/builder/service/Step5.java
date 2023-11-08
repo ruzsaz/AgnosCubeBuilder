@@ -10,8 +10,8 @@ import hu.agnos.cube.dimension.Dimension;
 import hu.agnos.cube.dimension.Node;
 import hu.agnos.cube.measure.Cells;
 import hu.agnos.cube.builder.entity.raw.RawCube;
+import hu.agnos.cube.builder.entity.raw.RawDimensions;
 import hu.agnos.cube.builder.entity.raw.RawDimension;
-import hu.agnos.cube.builder.entity.raw.RawHierarchy;
 import hu.agnos.cube.builder.entity.raw.RawNode;
 
 /**
@@ -32,13 +32,13 @@ public class Step5 {
         
         //a dimenziók és a hierarchiák átmásolása
         for (int dimId : preCube.rawDimensions.keySet()) {
-            RawDimension rawDim = preCube.rawDimensions.get(dimId);
+            RawDimensions rawDim = preCube.rawDimensions.get(dimId);
 
             Dimension dimension = cube.getDimensions().get(dimId);
             
             
-            for (int hierId : rawDim.getHierarchies().keySet()) {
-                RawHierarchy preHier = rawDim.getHierarchies().get(hierId);
+            for (int hierId : rawDim.getDimensions().keySet()) {
+                RawDimension preHier = rawDim.getDimensions().get(hierId);
 
                
                 RawNode[][] preHierarchy = preHier.getNodes();

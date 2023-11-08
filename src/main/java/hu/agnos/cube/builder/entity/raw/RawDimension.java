@@ -6,74 +6,182 @@
 package hu.agnos.cube.builder.entity.raw;
 
 import java.util.HashMap;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  *
  * @author parisek
  */
+@Getter
+@Setter
+@ToString
 public class RawDimension {
 
-    private final HashMap<Integer, RawHierarchy> hierarchies;
- 
+    private final RawNode root;
 
-    public RawDimension() {        
-        this.hierarchies = new HashMap();
+    private RawNode[][] nodes;
+
+    private final String dimensionUniqeName;
+
+    private final boolean isOfflineCalculated;
+
+    public RawDimension(String dimensionUniqeName, boolean isOfflineCalculated) {
+        this.root = new RawNode(0, "All", "All");
+        this.dimensionUniqeName = dimensionUniqeName;
+        this.isOfflineCalculated = isOfflineCalculated;
     }
 
-    public HashMap<Integer, RawHierarchy> getHierarchies() {
-        return hierarchies;
+    public RawNode[] getBaseLevelNode() {
+        int lastIndex = nodes.length - 1;
+//        System.out.println("" + this.dimensionUniqeName + ", lastIndex: " + lastIndex);
+        return nodes[lastIndex];
     }
 
-    public RawHierarchy getHierarchy(int idx) {
-        if (this.hierarchies.containsKey(idx)) {
-            return this.hierarchies.get(idx);
-        } else {
-            return null;
+    public RawNode[][] getDimension() {
+        int lastIndex = nodes.length - 1;
+        RawNode[][] result = new RawNode[lastIndex][];
+
+        for (int i = 0; i < lastIndex; i++) {
+            result[i] = this.nodes[i];
+        }
+
+        return result;
+    }
+
+   
+   
+   
+
+    private int[] getNodeIdsAuxArray() {
+        int depth = getDepth();
+
+        int[] auxArray = new int[depth];
+        for (int i = 0; i < depth; i++) {
+            auxArray[i] = 0;
+        }
+
+        return auxArray;
+    }
+
+    public void indexing() {
+
+        int[] nodeIdsAuxArray = getNodeIdsAuxArray();
+        root.indexing(nodeIdsAuxArray);
+        createNodesArraySkeleton(nodeIdsAuxArray);
+
+    }
+
+    public void reindexingInBaseLevelIdInCaseMultiHierarchies(HashMap<String, RawNode> reference) {
+        int maxDepth = this.getDepth()-1;
+        root.reindexingInBaseLevelIdInCaseMultiHierarchies(reference, maxDepth);
+    }
+
+    public HashMap<String, RawNode> getBaseLevelReference() {
+        HashMap<String, RawNode> result = new HashMap<>();
+        int maxDepth = this.getDepth()-1;
+        result = root.getBaseLevelReferenceAux(result, maxDepth);
+        return result;
+    }
+
+    public void postProcess3() {
+        root.setParentId(-1);
+        root.createChildreaIds();
+        root.createIntervals();
+        nodeArrayLoder(root);
+    }
+
+//    public void generateIntervallForRoot() {
+//        Set<Integer> rootFactTableRowIds = root.getFactTableRowIds();
+//        rootFactTableRowIds.clear();
+//
+//        if (root.getAggregateChildId() != -1) {
+//            for (RawNode child : root.getChildren()) {
+//                if (child.getCode().equals("All")) {
+//                    int[] childA = child.getA();
+//                    int[] childB = child.getB();
+//
+//                    for (int i = 0; i < childA.length; i++) {
+//
+//                        int startIdx = childA[i];
+//                        int endIdx = childB[i];
+//
+//                        while (startIdx <= endIdx) {
+//                            if (!rootFactTableRowIds.contains(startIdx)) {
+//                                rootFactTableRowIds.add(startIdx);
+//                            }
+//                            startIdx++;
+//                        }
+//                    }
+//                    break;
+//                }
+//
+//            }
+//        } else {
+//            for (RawNode child : root.getChildren()) {
+//                int[] childA = child.getA();
+//                int[] childB = child.getB();
+//
+//                for (int i = 0; i < childA.length; i++) {
+//
+//                    int startIdx = childA[i];
+//                    int endIdx = childB[i];
+//
+//                    while (startIdx <= endIdx) {
+//                        if (!rootFactTableRowIds.contains(startIdx)) {
+//                                rootFactTableRowIds.add(startIdx);
+//                            }
+//                        startIdx++;
+//                    }
+//                }
+//            }
+//        }
+//        root.createIntervals(false);
+//    }
+//    public void setRootAggregetedChild() {
+//        for (RawNode child : root.getChildren()) {
+//            if (child.getCode().equals("All")) {
+//                root.setAggregateChildId(child.getId());
+//            }
+//        }
+//    }
+    public void nodeArrayLoder(RawNode member) {
+        if (member.equals(root)) {
+            this.nodes[0][0] = root;
+        }
+        for (RawNode child : member.getChildren()) {
+            int childId = child.getId();
+            int childDepth = child.getDepth();
+
+            this.nodes[childDepth][childId] = child;
+            nodeArrayLoder(child);
         }
     }
 
-    public void addHierarchy(RawHierarchy hier, Integer idx) {
-        if (!this.hierarchies.containsKey(idx)) {
-            this.hierarchies.put(idx, hier);
+    private void createNodesArraySkeleton(int[] nodeIdsAuxArray) {
+        int levelsCnt = nodeIdsAuxArray.length;
+        this.nodes = new RawNode[levelsCnt][];
+        for (int i = 0; i < levelsCnt; i++) {
+            RawNode[] level = new RawNode[nodeIdsAuxArray[i]];
+            this.nodes[i] = level;
         }
     }
 
-    public void printer() {
-        for (RawHierarchy hier : this.hierarchies.values()) {
-            hier.printer(hier.getRoot());
-//            System.out.println("\n---------------------------------------------\n");
+    private int getDepth() {
+        int depth = 1;
+        RawNode actualNode = root;
+        while (!actualNode.isLeaf()) {
+            depth++;
+            actualNode = actualNode.getFirstChild();
         }
+        return depth;
     }
 
-    public void postProcess() {
-       
-        for (RawHierarchy hier : this.hierarchies.values()) {
-            hier.indexing();
-        }
-        
-        if(this.hierarchies.size() > 1){
-            HashMap<String, RawNode> reference = null;
-            boolean isFirst = true;
-           for (RawHierarchy hier : this.hierarchies.values()) {
-                if(isFirst){
-                    reference = hier.getBaseLevelReference();
-                    isFirst = false;
-                }
-                else{
-                    hier.reindexingInBaseLevelIdInCaseMultiHierarchies(reference);
-                }
-            }
-        }
-        
-        for (RawHierarchy hier : this.hierarchies.values()) {
-            hier.postProcess3();
-        }
-        
+    public void printer(RawNode member) {
+        root.print();
     }
 
-    @Override
-    public String toString() {
-        return "PreDimension{" + ", hierarchiesSize=" + hierarchies.size() + '}';
-    }
 
+    
 }

@@ -8,13 +8,16 @@ package hu.agnos.cube.builder.service;
 import hu.agnos.cube.Cube;
 import hu.agnos.cube.dimension.Dimension;
 import hu.agnos.cube.dimension.Level;
+import hu.agnos.cube.extraCalculation.PostCalculation;
+import hu.agnos.cube.measure.AbstractMeasure;
 import hu.agnos.cube.measure.CalculatedMeasure;
 import hu.agnos.cube.measure.Measure;
 import hu.agnos.cube.measure.Measures;
 import hu.agnos.cube.specification.entity.CubeSpecification;
-import hu.agnos.cube.specification.entity.HierarchySpecification;
+import hu.agnos.cube.specification.entity.DimensionSpecification;
 import hu.agnos.cube.specification.entity.LevelSpecification;
 import hu.agnos.cube.specification.entity.MeasureSpecification;
+import hu.agnos.cube.specification.entity.PostCalculationSpecification;
 
 /**
  *
@@ -28,7 +31,11 @@ public class Step1 {
 
         loadMeasure(cube, xmlCube);
         loadHierarchy(cube, xmlCube);
-
+        for(PostCalculationSpecification calculation: xmlCube.getExtraCalculations()){
+            AbstractMeasure measure = cube.getMeasures().getMeasureByName(calculation.getMeasureName());
+            Dimension dimension = cube.getDimensionByName(calculation.getDimensionName());
+            cube.getPostCalculations().add(new PostCalculation(calculation.getType(), measure, dimension));
+        }        
         return cube;
     }
 
@@ -40,10 +47,10 @@ public class Step1 {
             String calculatedFormula = xmlMeasure.getCalculatedFormula();
             if (calculatedFormula == null) {
                 Measure measure = new Measure(uniqueName);
-                cube.getMeasures().addMember(measure);
+                cube.getMeasures().addMeasure(measure);
             } else {
                 CalculatedMeasure calculatedMeasure = new CalculatedMeasure(uniqueName, calculatedFormula);
-                cube.getMeasures().addMember(calculatedMeasure);
+                cube.getMeasures().addMeasure(calculatedMeasure);
             }
         }
     }
@@ -51,12 +58,12 @@ public class Step1 {
     private static void loadHierarchy(Cube cube, CubeSpecification xmlCube) {
         int dimIdx = 0;
 
-        for (HierarchySpecification xmlHierarchy : xmlCube.getHierarchies()) {
-            String hierarchyName = xmlHierarchy.getUniqueName();
+        for (DimensionSpecification xmlDimension : xmlCube.getDimensions()) {
+            String dimensionName = xmlDimension.getUniqueName();
 
-            boolean isOfflineCalculated = xmlHierarchy.isOfflineCalculated();
-            Dimension dim = new Dimension(hierarchyName, isOfflineCalculated);
-            for (LevelSpecification xmlLevel : xmlHierarchy.getLevels()) {
+            boolean isOfflineCalculated = xmlDimension.isOfflineCalculated();
+            Dimension dim = new Dimension(dimensionName, isOfflineCalculated);
+            for (LevelSpecification xmlLevel : xmlDimension.getLevels()) {
 
                 String levelName = xmlLevel.getUniqueName();
                 String codeColumnName = xmlLevel.getCodeColumnName();

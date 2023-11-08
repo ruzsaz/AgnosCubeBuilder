@@ -11,7 +11,7 @@ import hu.agnos.cube.builder.entity.sql.SqlHierarchy;
 import hu.agnos.cube.builder.entity.sql.SqlLevel;
 import hu.agnos.cube.builder.entity.sql.SqlMeasure;
 import hu.agnos.cube.specification.entity.CubeSpecification;
-import hu.agnos.cube.specification.entity.HierarchySpecification;
+import hu.agnos.cube.specification.entity.DimensionSpecification;
 import hu.agnos.cube.specification.entity.LevelSpecification;
 import java.util.ArrayList;
 import java.util.List;
@@ -491,8 +491,8 @@ public class SQLGenerator {
         List<String> dimensionColumnList = new ArrayList<>();
         StringBuilder querySQLBuilder = new StringBuilder();
 //        for (XMLDimension dim : xmlCube.getDimensions()) {
-            for (HierarchySpecification hier : xmlCube.getHierarchies()) {
-                for (LevelSpecification level : hier.getLevels()) {
+            for (DimensionSpecification dim : xmlCube.getDimensions()) {
+                for (LevelSpecification level : dim.getLevels()) {
                     if (!dimensionColumnList.contains(level.getCodeColumnSourceName())) {
                         dimensionColumnList.add(level.getCodeColumnSourceName());
                     }
@@ -518,8 +518,8 @@ public class SQLGenerator {
         List<String> dimensionColumnList = new ArrayList<>();
         StringBuilder querySQLBuilder = new StringBuilder();
 //        for (XMLDimension dim : xmlCube.getDimensions()) {
-            for (HierarchySpecification hier : xmlCube.getHierarchies()) {
-                for (LevelSpecification level : hier.getLevels()) {
+            for (DimensionSpecification dim : xmlCube.getDimensions()) {
+                for (LevelSpecification level : dim.getLevels()) {
 
                     String columnName = level.getCodeColumnSourceName();
 
@@ -548,8 +548,8 @@ public class SQLGenerator {
         List<String> dimensionColumnList = new ArrayList<>();
         StringBuilder querySQLBuilder = new StringBuilder();
 //        for (XMLDimension dim : xmlCube.getDimensions()) {
-            for (HierarchySpecification hier : xmlCube.getHierarchies()) {
-                for (LevelSpecification level : hier.getLevels()) {
+            for (DimensionSpecification dim : xmlCube.getDimensions()) {
+                for (LevelSpecification level : dim.getLevels()) {
 
                     String columnName = level.getCodeColumnSourceName();
 
@@ -633,8 +633,8 @@ public class SQLGenerator {
         List<String> dimensionColumnList = new ArrayList<>();
         StringBuilder querySQLBuilder = new StringBuilder();
 //        for (XMLDimension dim : xmlCube.getDimensions()) {
-            for (HierarchySpecification hier : xmlCube.getHierarchies()) {
-                for (LevelSpecification level : hier.getLevels()) {
+            for (DimensionSpecification dim : xmlCube.getDimensions()) {
+                for (LevelSpecification level : dim.getLevels()) {
 
                     String columnName = level.getCodeColumnSourceName();
                     if (!dimensionColumnList.contains(columnName)) {
@@ -660,7 +660,7 @@ public class SQLGenerator {
 
         StringBuilder selectQuerySQLBuilder = new StringBuilder("SELECT ");
 
-        for (String column : xmlCube.getDistinctHierarchyColumnList()) {
+        for (String column : xmlCube.getDistinctDimensionColumnList()) {
             selectQuerySQLBuilder.append(column).append(", ");
             insertQuerySQLBuilder.append(column).append(", ");
 

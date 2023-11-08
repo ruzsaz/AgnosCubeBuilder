@@ -8,8 +8,8 @@ package hu.agnos.cube.builder.entity.sql;
 import java.util.ArrayList;
 import java.util.List;
 import hu.agnos.cube.builder.entity.raw.RawCube;
+import hu.agnos.cube.builder.entity.raw.RawDimensions;
 import hu.agnos.cube.builder.entity.raw.RawDimension;
-import hu.agnos.cube.builder.entity.raw.RawHierarchy;
 import hu.agnos.cube.builder.util.SQLGenerator;
 
 /**
@@ -102,10 +102,10 @@ public class SqlCube {
         RawCube preCube = new RawCube();
         int dimIdx = 0;
         for (SqlDimension sqlDimension : this.dimensions) {
-            RawDimension preDim = new RawDimension();
+            RawDimensions preDim = new RawDimensions();
             int hierIdx = 0;
             for (SqlHierarchy sqlHier : sqlDimension.getHierarchies()) {
-                RawHierarchy preHierarchy = new RawHierarchy(sqlHier.getUniqeName(), sqlHier.isOLAP());
+                RawDimension preHierarchy = new RawDimension(sqlHier.getUniqeName(), sqlHier.isOLAP());
                 preDim.addHierarchy(preHierarchy, hierIdx);
                 hierIdx++;
             }
