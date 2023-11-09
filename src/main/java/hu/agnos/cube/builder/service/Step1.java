@@ -12,7 +12,6 @@ import hu.agnos.cube.extraCalculation.PostCalculation;
 import hu.agnos.cube.measure.AbstractMeasure;
 import hu.agnos.cube.measure.CalculatedMeasure;
 import hu.agnos.cube.measure.Measure;
-import hu.agnos.cube.measure.Measures;
 import hu.agnos.cube.specification.entity.CubeSpecification;
 import hu.agnos.cube.specification.entity.DimensionSpecification;
 import hu.agnos.cube.specification.entity.LevelSpecification;
@@ -27,30 +26,24 @@ public class Step1 {
 
     public Cube createCubeWithMeta(CubeSpecification xmlCube, String cubeUniqueName, String sourceTableName) {
         Cube cube = new Cube(cubeUniqueName);
-//        cube.setSourceTableName(sourceTableName);
 
         loadMeasure(cube, xmlCube);
         loadHierarchy(cube, xmlCube);
-        for(PostCalculationSpecification calculation: xmlCube.getExtraCalculations()){
-            AbstractMeasure measure = cube.getMeasures().getMeasureByName(calculation.getMeasureName());
-            Dimension dimension = cube.getDimensionByName(calculation.getDimensionName());
-            cube.getPostCalculations().add(new PostCalculation(calculation.getType(), measure, dimension));
-        }        
+        loadPostCalculation(cube, xmlCube);
+        
         return cube;
     }
 
     private static void loadMeasure(Cube cube, CubeSpecification xmlCube) {
-        Measures measures = new Measures();
-        cube.setMeasures(measures);
         for (MeasureSpecification xmlMeasure : xmlCube.getMeasures()) {
             String uniqueName = xmlMeasure.getUniqueName();
             String calculatedFormula = xmlMeasure.getCalculatedFormula();
             if (calculatedFormula == null) {
                 Measure measure = new Measure(uniqueName);
-                cube.getMeasures().addMeasure(measure);
+                cube.addMeasure(measure);
             } else {
                 CalculatedMeasure calculatedMeasure = new CalculatedMeasure(uniqueName, calculatedFormula);
-                cube.getMeasures().addMeasure(calculatedMeasure);
+                cube.addMeasure(calculatedMeasure);
             }
         }
     }
@@ -77,4 +70,11 @@ public class Step1 {
         }
     }
 
+    private static void loadPostCalculation(Cube cube, CubeSpecification xmlCube) {
+        for (PostCalculationSpecification calculation : xmlCube.getExtraCalculations()) {
+            AbstractMeasure measure = cube.getMeasureByName(calculation.getMeasureName());
+            Dimension dimension = cube.getDimensionByName(calculation.getDimensionName());
+            cube.getPostCalculations().add(new PostCalculation(calculation.getType(), measure, dimension));
+        }
+    }
 }

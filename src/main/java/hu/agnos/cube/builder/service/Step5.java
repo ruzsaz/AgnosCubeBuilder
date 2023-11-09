@@ -26,7 +26,6 @@ public class Step5 {
      * @param preCube az imputadatokat tartalmazó RawCube
      */
      public void converPreCube2Cube(Cube cube, RawCube preCube) {
-
          // a Cells átmásolása
         cube.setCells(new Cells(preCube.getRawCells().getCells()));
         
@@ -36,10 +35,8 @@ public class Step5 {
 
             Dimension dimension = cube.getDimensions().get(dimId);
             
-            
             for (int hierId : rawDim.getDimensions().keySet()) {
                 RawDimension preHier = rawDim.getDimensions().get(hierId);
-
                
                 RawNode[][] preHierarchy = preHier.getNodes();
                 Node[][] nodeHierarchy = new Node[preHierarchy.length][];
@@ -63,13 +60,10 @@ public class Step5 {
                         oneRowNodes[i] = node;
                     }
                     nodeHierarchy[j] = oneRowNodes;
-
                 }
                 //Hierarchy hierarchy = dimension.getHierarchyByUniqueName(preHier.getHierarchyUniqeName());
                 dimension.setNodes(nodeHierarchy);
-
             }
-
         }
-     }
+    }
 }

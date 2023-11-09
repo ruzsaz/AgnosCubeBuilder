@@ -9,7 +9,6 @@ import hu.agnos.cube.Cube;
 import hu.agnos.cube.dimension.Dimension;
 import hu.agnos.cube.dimension.Level;
 import hu.agnos.cube.measure.AbstractMeasure;
-import hu.agnos.cube.measure.Measures;
 import java.util.List;
 import hu.agnos.cube.builder.entity.sql.SqlCube;
 import hu.agnos.cube.builder.entity.sql.SqlDimension;
@@ -25,12 +24,8 @@ public class Step2 {
 
     public SqlCube getSQLCube(Cube cube, String sourceDBDriver, String sourceTableName) {
         SqlCube sqlCube = new SqlCube(sourceTableName, sourceDBDriver);
-
-        List<Dimension> dimensions = cube.getDimensions();
-
-        Measures measures = cube.getMeasures();
-
-        for (Dimension dim : dimensions) {
+  
+        for (Dimension dim : cube.getDimensions()) {
             SqlDimension sqlDim = new SqlDimension();
 
             boolean isOfflineCalculated = dim.isOfflineCalculated();
@@ -49,7 +44,7 @@ public class Step2 {
             sqlCube.addDimension(sqlDim);
         }
 
-        for (AbstractMeasure measure : measures.getMeasures()) {
+        for (AbstractMeasure measure : cube.getMeasures()) {
             if (!measure.isCalculatedMember()) {
                 sqlCube.addMeasure(new SqlMeasure(measure.getName()));
             }

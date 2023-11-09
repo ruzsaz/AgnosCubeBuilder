@@ -10,7 +10,6 @@ import hu.agnos.cube.builder.service.Step2;
 import hu.agnos.cube.builder.service.Step3;
 import hu.agnos.cube.builder.service.Step4;
 import hu.agnos.cube.builder.service.Step5;
-import hu.agnos.cube.builder.service.Step6;
 import hu.agnos.cube.Cube;
 import hu.agnos.cube.builder.entity.raw.RawCube;
 import hu.agnos.cube.builder.entity.sql.SqlCube;
@@ -45,9 +44,6 @@ public class CubeMaker {
 
         logger.debug("convert preCube to cube");
         (new Step5()).converPreCube2Cube(cube, preCube);
-//TODO: ez jelenleg üres művelet
-        logger.debug("refresh cube header");
-        (new Step6()).refressCubeHeader(cube);
 
         
         logger.debug("finished");
