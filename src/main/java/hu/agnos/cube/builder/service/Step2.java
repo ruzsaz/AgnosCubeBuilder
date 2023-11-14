@@ -8,13 +8,13 @@ package hu.agnos.cube.builder.service;
 import hu.agnos.cube.Cube;
 import hu.agnos.cube.dimension.Dimension;
 import hu.agnos.cube.dimension.Level;
-import hu.agnos.cube.measure.AbstractMeasure;
 import java.util.List;
 import hu.agnos.cube.builder.entity.sql.SqlCube;
 import hu.agnos.cube.builder.entity.sql.SqlDimension;
 import hu.agnos.cube.builder.entity.sql.SqlHierarchy;
 import hu.agnos.cube.builder.entity.sql.SqlLevel;
 import hu.agnos.cube.builder.entity.sql.SqlMeasure;
+import hu.agnos.cube.measure.AbstractMeasure;
 
 /**
  *
@@ -45,7 +45,7 @@ public class Step2 {
         }
 
         for (AbstractMeasure measure : cube.getMeasures()) {
-            if (!measure.isCalculatedMember()) {
+            if (!measure.isCalculated() && !measure.isVirtual() ) {
                 sqlCube.addMeasure(new SqlMeasure(measure.getName()));
             }
         }

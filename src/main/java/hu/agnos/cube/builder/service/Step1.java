@@ -9,7 +9,6 @@ import hu.agnos.cube.Cube;
 import hu.agnos.cube.dimension.Dimension;
 import hu.agnos.cube.dimension.Level;
 import hu.agnos.cube.extraCalculation.PostCalculation;
-import hu.agnos.cube.measure.AbstractMeasure;
 import hu.agnos.cube.measure.CalculatedMeasure;
 import hu.agnos.cube.measure.Measure;
 import hu.agnos.cube.specification.entity.CubeSpecification;
@@ -17,6 +16,8 @@ import hu.agnos.cube.specification.entity.DimensionSpecification;
 import hu.agnos.cube.specification.entity.LevelSpecification;
 import hu.agnos.cube.specification.entity.MeasureSpecification;
 import hu.agnos.cube.specification.entity.PostCalculationSpecification;
+import hu.agnos.cube.measure.AbstractMeasure;
+import hu.agnos.cube.measure.VirtualMeasure;
 
 /**
  *
@@ -38,7 +39,12 @@ public class Step1 {
         for (MeasureSpecification xmlMeasure : xmlCube.getMeasures()) {
             String uniqueName = xmlMeasure.getUniqueName();
             String calculatedFormula = xmlMeasure.getCalculatedFormula();
-            if (calculatedFormula == null) {
+            if(xmlMeasure.isVirtual()){
+                VirtualMeasure virtualMeasure = new VirtualMeasure(uniqueName, xmlMeasure.getDimensionName(), 
+                        xmlMeasure.getLevelName(), xmlMeasure.getType());
+                cube.addMeasure(virtualMeasure);
+            }
+            else if (calculatedFormula == null ) {
                 Measure measure = new Measure(uniqueName);
                 cube.addMeasure(measure);
             } else {
