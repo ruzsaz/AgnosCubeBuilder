@@ -5,21 +5,21 @@
  */
 package hu.agnos.cube.builder.entity.sql;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
 /**
  *
  * @author parisek
  */
+@Getter
+@AllArgsConstructor
+@ToString
 public class SqlMeasure {
     
     private final String name;
-
-    public SqlMeasure(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
     
+    private final String type;
     
 }

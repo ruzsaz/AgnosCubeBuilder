@@ -3,18 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hu.agnos.cube.builder.service;
+package hu.agnos.cube.builder.entity.pre;
 
-import hu.agnos.cube.builder.entity.pre.PreCube;
 
 /**
  *
  * @author parisek
  */
-public class Step4 {
-
-    public void postProcessPreCube(PreCube preCube) {
-        preCube.postProcess();
-    }
-
+public abstract class AbstractPreCells  {    
+    abstract String getType();
 }

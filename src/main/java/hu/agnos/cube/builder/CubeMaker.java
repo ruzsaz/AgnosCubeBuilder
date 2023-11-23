@@ -11,7 +11,7 @@ import hu.agnos.cube.builder.service.Step3;
 import hu.agnos.cube.builder.service.Step4;
 import hu.agnos.cube.builder.service.Step5;
 import hu.agnos.cube.Cube;
-import hu.agnos.cube.builder.entity.raw.RawCube;
+import hu.agnos.cube.builder.entity.pre.PreCube;
 import hu.agnos.cube.builder.entity.sql.SqlCube;
 import hu.agnos.cube.specification.entity.CubeSpecification;
 import java.sql.SQLException;
@@ -31,12 +31,13 @@ public class CubeMaker {
 
         logger.debug("cube building started");
         Cube cube = (new Step1()).createCubeWithMeta(xmlCube, cubeUniqueName, sourceTableName);
-
         logger.debug("create sqlcube");
         SqlCube sqlCube = (new Step2()).getSQLCube(cube, xmlCube.getSourceDBDriver(), sourceTableName);
 
         logger.debug("create precube");
-        RawCube preCube = (new Step3()).getPreCube(sqlCube, cubeUniqueName, xmlCube);
+        PreCube preCube = (new Step3()).getPreCube(sqlCube, cubeUniqueName, xmlCube);
+        
+//        System.out.println("preCube: " + preCube);
         logger.debug("load cube");
 
         (new Step4()).postProcessPreCube(preCube);
@@ -44,7 +45,7 @@ public class CubeMaker {
 
         logger.debug("convert preCube to cube");
         (new Step5()).converPreCube2Cube(cube, preCube);
-
+//
         
         logger.debug("finished");
         return cube;

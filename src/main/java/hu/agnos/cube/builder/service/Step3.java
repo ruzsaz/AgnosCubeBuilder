@@ -5,19 +5,22 @@
  */
 package hu.agnos.cube.builder.service;
 
+import hu.agnos.cube.builder.entity.pre.AbstractPreCells;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import hu.agnos.cube.builder.entity.raw.RawCells;
-import hu.agnos.cube.builder.entity.raw.RawCube;
-import hu.agnos.cube.builder.entity.raw.RawDimension;
-import hu.agnos.cube.builder.entity.raw.RawNode;
+import hu.agnos.cube.builder.entity.pre.PreCellsFloat;
+import hu.agnos.cube.builder.entity.pre.PreCellsInt;
+import hu.agnos.cube.builder.entity.pre.PreCube;
+import hu.agnos.cube.builder.entity.pre.PreDimension;
+import hu.agnos.cube.builder.entity.pre.PreNode;
 import hu.agnos.cube.builder.entity.sql.SqlCube;
 import hu.agnos.cube.builder.util.DBConector;
 import hu.agnos.cube.specification.entity.CubeSpecification;
+import hu.agnos.cube.specification.entity.MeasureType;
 
 import java.util.Date;
 import org.slf4j.Logger;
@@ -37,38 +40,50 @@ public class Step3 {
 
     /**
      * Az sqlCube-ban definiált táblából létrehoz és adatokkal feltölt egy
-     * RawCube-ot.
+     * PreCube-ot.
      *
      * @param sqlCube az importáláshoz szükséges SqlCube
-     * @return az adatokkal feltöltött RawCube (ebben még nincsennek id-k és
+     * @return az adatokkal feltöltött PreCube (ebben még nincsennek id-k és
      * intervallumok!!!)
      */
-    public RawCube getPreCube(SqlCube sqlCube, String cubeUniqueName, CubeSpecification xmlCub) throws ClassNotFoundException {
+    public PreCube getPreCube(SqlCube sqlCube, String cubeUniqueName, CubeSpecification xmlCub) throws ClassNotFoundException {
 
-        String sql = sqlCube.getDropSQL();
-//        System.out.println("sql11112: " + sql);
-        DBConector.slientExecuteQuery(sql, xmlCub.getSourceDBUser(), xmlCub.getSourceDBPassword(), xmlCub.getSourceDBURL(), xmlCub.getSourceDBDriver());
+        String dropTableSQL = sqlCube.getDropSQL();
+        System.out.println("sql11112: " + dropTableSQL);
+        DBConector.slientExecuteQuery(dropTableSQL, xmlCub.getSourceDBUser(), xmlCub.getSourceDBPassword(), xmlCub.getSourceDBURL(), xmlCub.getSourceDBDriver());
 
         String createSQL = sqlCube.getCreateSQL();
-//        System.out.println("sql11113: " + createSQL);
+        System.out.println("sql11113: " + createSQL);
 
         String dropIndexSQL = sqlCube.getDropIndexSQL();
-//        System.out.println("sql11116: " + dropIndexSQL);
+        System.out.println("sql11116: " + dropIndexSQL);
 
         String createIndexSQL = sqlCube.getCreateIndexSQL();
-//        System.out.println("sql11117: " + createIndexSQL);
+        System.out.println("sql11117: " + createIndexSQL);
 
         String countSQL = "SELECT COUNT(1) FROM " + sqlCube.getSourceTableName();
 
-        // ebben a tömbből megtudható, hogy a ResultSet egy adott oszlopa melyik dimenzió, melyik hierarchiája
+        // ebben a tömbből megtudható, hogy a ResultSet egy adott oszlopa melyik dimenzióhoz tartozik
         int[][] dimensionIndex = sqlCube.getDimensionIndex();
 
-        RawCube preCube = sqlCube.getEmptyPreCube();
+//        
+//          int[][] dimIdx = sqlCube.getDimensionIndex();
+//        for(int i= 0; i < dimIdx.length; i++){
+//            System.out.println("i:" + i);
+//            for(int j = 0; j < dimIdx[i].length; j++){
+//                System.out.println("\tj:" + j);
+//                System.out.println("\t\tvalue:" + dimIdx[i][j]);
+//            }   
+//        }
+        PreCube preCube = sqlCube.getEmptyPreCube();
 
-        int dimensionColumnCnt = sqlCube.getDimensionColumnCountInSQLResultSet();
+        int dimensionColumnCnt = sqlCube.getDimensionColumnCount();
+//        System.out.println("dimensionColumnCnt: " + dimensionColumnCnt);
 
         int measureCnt = sqlCube.getMeasures().size();
-        RawCells preCells = null;
+//        System.out.println("measureCnt: " + measureCnt);
+
+        AbstractPreCells preCells = null;
 
         Connection conn = null;
         Statement statement = null;
@@ -85,6 +100,7 @@ public class Step3 {
 
             DBConector.executeQuery(createSQL, user, password, url, driver);
 
+//            System.out.println("createSQL: " + createSQL);
             DBConector.slientExecuteQuery(dropIndexSQL, xmlCub.getSourceDBUser(), xmlCub.getSourceDBPassword(), xmlCub.getSourceDBURL(), xmlCub.getSourceDBDriver());
 
             DBConector.executeQuery(createIndexSQL, user, password, url, driver);
@@ -101,7 +117,11 @@ public class Step3 {
             }
             logger.info("Number of rows to export: " + rowCnt);
 
-            preCells = new RawCells(rowCnt, measureCnt);
+            if (preCube.getType().equals(MeasureType.CLASSICAL.getType())) {
+                preCells = new PreCellsFloat(rowCnt, measureCnt, preCube.getType());
+            } else if (preCube.getType().equals(MeasureType.COUNT_DISTINCT.getType())) {
+                preCells = new PreCellsInt(rowCnt, preCube.getType());
+            }
 
             int rowID = 0;
 
@@ -124,31 +144,47 @@ public class Step3 {
 //                        System.out.println("\t\t\t" + (rowID / 50000) + ". ötvenezer sor feldolgozva "+ (most.getTime()-elozo.getTime())+" ms alatt." );
                         elozo = most;
                     }
-                    List<RawNode> preNodes = new ArrayList<>();
+                    List<PreNode> preNodes = new ArrayList<>();
 
                     //a ResultSet egy sorának kinyerése                
-                    for (int i = 1; i <= dimensionColumnCnt; i++) {
-                        String nodeCode = eliminateForbiddenChars(rSet.getString(i));
-                        if (nodeCode == null) {
-                            nodeCode = "All";
-                        }
-                        int nodeDepth = dimensionIndex[i][2] + 1;
+                    for (int i = 0; i < dimensionColumnCnt; i++) {
+                        //+1 mert a rSet oszlopainak számozása 1-től kezdődik
+                        String nodeCode = eliminateForbiddenChars(rSet.getString(i + 1));
+
                         i++; // mert egy level code-ból és name-ből áll
                         String nodeName = eliminateForbiddenChars(rSet.getString(i));
-                        if (nodeName == null) {
-                            nodeName = "All";
-                        }
-                        RawNode preNode = new RawNode(nodeDepth, nodeCode, nodeName);
+
+                        //+1 mert a nulladik szinten a Root van
+                        int nodeDepth = dimensionIndex[i][1] + 1;
+
+//                        System.out.println("i: " + i
+//                                + ", nodeCode: " + nodeCode 
+//                                + ", nodeName: " + nodeName
+//                                + ", nodeDepth: "+ nodeDepth);
+                        PreNode preNode = new PreNode(nodeDepth, nodeCode, nodeName);
                         preNode.addFactTableRowId(rowID);
                         preNodes.add(preNode);
                     }
 
-                    for (int i = 0; i < measureCnt; i++) {
-                        int index = dimensionColumnCnt + 1 + i;
-                        float measure = rSet.getFloat(index);
-                        preCells.addCell(rowID, i, measure);
-                    }
+                    if (preCube.getType().equals(MeasureType.CLASSICAL.getType())) {
+                        for (int i = 0; i < measureCnt; i++) {
+                            int index = dimensionColumnCnt + 1 + i;
+                            float measure = rSet.getFloat(index);
+                            ((PreCellsFloat) preCells).addCell(rowID, i, measure);
+                        }
 
+                    } 
+                    else if (preCube.getType().equals(MeasureType.COUNT_DISTINCT.getType())) {
+                            int index = dimensionColumnCnt + 1 ;
+                            String measureString = rSet.getString(index);
+                            String[] measureArray = measureString.split(",");
+                            int[] measure = new int[measureArray.length];
+                            for(int i = 0; i < measureArray.length; i++){
+                                measure[i] = Integer.parseInt(measureArray[i]);
+                            }
+                            ((PreCellsInt) preCells).addColumn(rowID, measure);
+                        
+                    }
 //                m  = System.nanoTime();
 //                
 //                System.out.println("node measure kinyerése: " + (m-e));
@@ -193,7 +229,7 @@ public class Step3 {
      * @param preNodes a feldolgozandó node-ok listája
      * @param hierarchy az a hierarchia, amelybe a nodokat bele kell rakni
      */
-    private void processHierarchyRow(List<RawNode> preNodes, RawDimension hierarchy) {
+    private void processHierarchyRow(List<PreNode> preNodes, PreDimension hierarchy) {
 
         if (hierarchy.isOfflineCalculated()) {
             processOLAPHierarchyRow(preNodes, hierarchy);
@@ -213,11 +249,11 @@ public class Step3 {
      * @param preNodes a feldolgozandó node-ok listája
      * @param hierarchy az a hierarchia, amelybe a nodokat bele kell rakni
      */
-    private void processNotOLAPHierarchyRow(List<RawNode> preNodes, RawDimension hierarchy) {
+    private void processNotOLAPHierarchyRow(List<PreNode> preNodes, PreDimension hierarchy) {
 
         long e = System.nanoTime();
 
-        RawNode parentNode = hierarchy.getRoot();
+        PreNode parentNode = hierarchy.getRoot();
 
 //        long m  = System.nanoTime();
 //                
@@ -239,8 +275,8 @@ public class Step3 {
 //                
 //                System.out.println(" existingNode: " + (m-e));
 //                e=m;
-            RawNode actualNode = preNodes.get(j);
-            RawNode existingNode = parentNode.getChild(actualNode.getCode());
+            PreNode actualNode = preNodes.get(j);
+            PreNode existingNode = parentNode.getChild(actualNode.getCode());
 
             if (existingNode == null) {
                 parentNode.addNewChild(actualNode);
@@ -265,7 +301,7 @@ public class Step3 {
      * @param preNodes a feldolgozandó node-ok listája
      * @param hierarchy az a hierarchia, amelybe a nodokat bele kell rakni
      */
-    private void processOLAPHierarchyRow(List<RawNode> preNodes, RawDimension hierarchy) {
+    private void processOLAPHierarchyRow(List<PreNode> preNodes, PreDimension hierarchy) {
         int lastNonAggregetedNodeIdx = -1;
         int i = 0;
         int preNodesSize = preNodes.size();
@@ -283,14 +319,14 @@ public class Step3 {
 
         if (lastNonAggregetedNodeIdx == -1) {
 
-            RawNode actulaNode = preNodes.get(0);
-            RawNode root = hierarchy.getRoot();
+            PreNode actulaNode = preNodes.get(0);
+            PreNode root = hierarchy.getRoot();
             for (int rowId : actulaNode.getFactTableRowIds().toArray()) {
                 root.addFactTableRowId(rowId);
             }
         } else {
-            RawNode parentNode = hierarchy.getRoot();
-            RawNode actualNode = null;
+            PreNode parentNode = hierarchy.getRoot();
+            PreNode actualNode = null;
             for (int j = 0; j < lastNonAggregetedNodeIdx; j++) {
                 actualNode = preNodes.get(j);
                 if (!parentNode.hasChild(actualNode.getCode())) {
@@ -301,7 +337,7 @@ public class Step3 {
                 parentNode = parentNode.getChild(actualNode.getCode());
             }
             actualNode = preNodes.get(lastNonAggregetedNodeIdx);
-            RawNode existingNode = parentNode.getChild(actualNode.getCode());
+            PreNode existingNode = parentNode.getChild(actualNode.getCode());
             if (existingNode == null) {
                 parentNode.addNewChild(actualNode);
 
@@ -321,36 +357,27 @@ public class Step3 {
      * @param preNodes a feldolgozandó node-ok listája, ennek annyi eleme van,
      * ahány sora a ResultSet-nek
      * @param dimensionIndex az a tömb amely a ResultSet minden egyes oszlopát
-     * dimenzióba, azon belül hierarchiákba sorolja.
+     * dimenzióba sorolja.
      * @param preCube az a cube, amelybe a megkapott node-okat töltjük.
      */
-    private void processDimensionRow(List<RawNode> preNodes, int[][] dimensionIndex, RawCube preCube) {
-        //ez minden egyes node-hoz megmondja, hogy az melyik dimenzió, melyik hierarchiája
+    private void processDimensionRow(List<PreNode> preNodes, int[][] dimensionIndex, PreCube preCube) {
+
+        //ez minden egyes node-hoz megmondja, hogy az melyik hierarchiához tartozik
         //szerepe majdnem megegyezik a dimensionIndex-vel, de annak 2x annyi sora van, 
         //mert egy node  két oszlopból áll a ResultSet-ben
-        int[][] nodeIndexes = new int[preNodes.size()][];
+        int[] nodeIndexes = preCube.getNodeIndexes();
 
-        int idx = 0;
-        for (int i = 0; i < dimensionIndex.length; i = i + 2) {
-            int[] dimAndHierIdx = new int[2];
-            dimAndHierIdx[0] = dimensionIndex[i][0];
-            dimAndHierIdx[1] = dimensionIndex[i][1];
-            nodeIndexes[idx] = dimAndHierIdx;
-            idx++;
-        }
-
-        List<RawNode> hierNodes = new ArrayList();
+        List<PreNode> hierNodes = new ArrayList();
 
         for (int i = 0; i < preNodes.size(); i++) {
-            int dimIdx = nodeIndexes[i][0];
 
-            int hierIdx = nodeIndexes[i][1];
+            int hierIdx = nodeIndexes[i];
 
-            while ((i < preNodes.size()) && (dimIdx == nodeIndexes[i][0]) && (hierIdx == nodeIndexes[i][1])) {
+            while ((i < preNodes.size()) && (hierIdx == nodeIndexes[i])) {
                 hierNodes.add(preNodes.get(i));
                 i++;
             }
-            processHierarchyRow(hierNodes, preCube.getDimension(dimIdx).getDimension(hierIdx));
+            processHierarchyRow(hierNodes, preCube.getDimension(hierIdx));
 
             hierNodes = new ArrayList();
             i--;

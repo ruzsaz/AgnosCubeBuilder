@@ -6,6 +6,8 @@
 package hu.agnos.cube.builder.service;
 
 import hu.agnos.cube.Cube;
+import hu.agnos.cube.ClassicalCube;
+import hu.agnos.cube.CountDistinctCube;
 import hu.agnos.cube.dimension.Dimension;
 import hu.agnos.cube.dimension.Level;
 import hu.agnos.cube.extraCalculation.PostCalculation;
@@ -18,6 +20,7 @@ import hu.agnos.cube.specification.entity.MeasureSpecification;
 import hu.agnos.cube.specification.entity.PostCalculationSpecification;
 import hu.agnos.cube.measure.AbstractMeasure;
 import hu.agnos.cube.measure.VirtualMeasure;
+import hu.agnos.cube.specification.entity.MeasureType;
 
 /**
  *
@@ -26,31 +29,37 @@ import hu.agnos.cube.measure.VirtualMeasure;
 public class Step1 {
 
     public Cube createCubeWithMeta(CubeSpecification xmlCube, String cubeUniqueName, String sourceTableName) {
-        Cube cube = new Cube(cubeUniqueName);
-
+        Cube cube = null;
+        if (xmlCube.getType().equals(MeasureType.COUNT_DISTINCT.getType())) {
+            cube = new CountDistinctCube(cubeUniqueName, xmlCube.getType());
+        } else {
+            cube = new ClassicalCube(cubeUniqueName, xmlCube.getType());
+        }
         loadMeasure(cube, xmlCube);
         loadHierarchy(cube, xmlCube);
         loadPostCalculation(cube, xmlCube);
-        
+
         return cube;
     }
 
     private static void loadMeasure(Cube cube, CubeSpecification xmlCube) {
         for (MeasureSpecification xmlMeasure : xmlCube.getMeasures()) {
             String uniqueName = xmlMeasure.getUniqueName();
+
             String calculatedFormula = xmlMeasure.getCalculatedFormula();
-            if(xmlMeasure.isVirtual()){
-                VirtualMeasure virtualMeasure = new VirtualMeasure(uniqueName, xmlMeasure.getDimensionName(), 
-                        xmlMeasure.getLevelName(), xmlMeasure.getType());
+
+            if (xmlMeasure.isCalculatedMeasure()) {
+                CalculatedMeasure calculatedMeasure = new CalculatedMeasure(uniqueName, MeasureType.valueOf("CALCULATED").getType(), calculatedFormula);
+                cube.addMeasure(calculatedMeasure);
+            } else if (xmlMeasure.isClassical()) {
+
+                Measure measure = new Measure(uniqueName, MeasureType.valueOf("CLASSICAL").getType());
+                cube.addMeasure(measure);
+            } else if (xmlMeasure.getType().equals(MeasureType.valueOf("COUNT_DISTINCT").getType())) {
+                VirtualMeasure virtualMeasure = new VirtualMeasure(uniqueName, xmlMeasure.getType());
                 cube.addMeasure(virtualMeasure);
             }
-            else if (calculatedFormula == null ) {
-                Measure measure = new Measure(uniqueName);
-                cube.addMeasure(measure);
-            } else {
-                CalculatedMeasure calculatedMeasure = new CalculatedMeasure(uniqueName, calculatedFormula);
-                cube.addMeasure(calculatedMeasure);
-            }
+
         }
     }
 

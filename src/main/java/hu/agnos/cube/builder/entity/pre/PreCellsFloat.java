@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hu.agnos.cube.builder.entity.raw;
+package hu.agnos.cube.builder.entity.pre;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,11 +14,14 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RawCells {
+public class PreCellsFloat extends AbstractPreCells {
+    
+    String type; 
     
     float [][] cells;
 
-    public RawCells(int rowCont, int columnCnt) {
+    public PreCellsFloat(int rowCont, int columnCnt, String type) {
+        this.type = type;
         this.cells = new float[columnCnt] [rowCont];
     }
         
