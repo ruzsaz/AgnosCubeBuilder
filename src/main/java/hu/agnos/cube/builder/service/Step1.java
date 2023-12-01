@@ -49,14 +49,15 @@ public class Step1 {
             String calculatedFormula = xmlMeasure.getCalculatedFormula();
 
             if (xmlMeasure.isCalculatedMeasure()) {
-                CalculatedMeasure calculatedMeasure = new CalculatedMeasure(uniqueName, MeasureType.valueOf("CALCULATED").getType(), calculatedFormula);
+                CalculatedMeasure calculatedMeasure = new CalculatedMeasure(uniqueName, 
+                        MeasureType.valueOf("CALCULATED").getType(),xmlMeasure.isHidden(), calculatedFormula);
                 cube.addMeasure(calculatedMeasure);
             } else if (xmlMeasure.isClassical()) {
 
-                Measure measure = new Measure(uniqueName, MeasureType.valueOf("CLASSICAL").getType());
+                Measure measure = new Measure(uniqueName, MeasureType.valueOf("CLASSICAL").getType(), xmlMeasure.isHidden());
                 cube.addMeasure(measure);
             } else if (xmlMeasure.getType().equals(MeasureType.valueOf("COUNT_DISTINCT").getType())) {
-                VirtualMeasure virtualMeasure = new VirtualMeasure(uniqueName, xmlMeasure.getType());
+                VirtualMeasure virtualMeasure = new VirtualMeasure(uniqueName, xmlMeasure.getType(), xmlMeasure.isHidden());
                 cube.addMeasure(virtualMeasure);
             }
 

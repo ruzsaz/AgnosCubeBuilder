@@ -78,10 +78,10 @@ public class Step3 {
         PreCube preCube = sqlCube.getEmptyPreCube();
 
         int dimensionColumnCnt = sqlCube.getDimensionColumnCount();
-//        System.out.println("dimensionColumnCnt: " + dimensionColumnCnt);
+        System.out.println("dimensionColumnCnt: " + dimensionColumnCnt);
 
         int measureCnt = sqlCube.getMeasures().size();
-//        System.out.println("measureCnt: " + measureCnt);
+        System.out.println("measureCnt: " + measureCnt);
 
         AbstractPreCells preCells = null;
 
@@ -152,7 +152,7 @@ public class Step3 {
                         String nodeCode = eliminateForbiddenChars(rSet.getString(i + 1));
 
                         i++; // mert egy level code-ból és name-ből áll
-                        String nodeName = eliminateForbiddenChars(rSet.getString(i));
+                        String nodeName = eliminateForbiddenChars(rSet.getString(i + 1));
 
                         //+1 mert a nulladik szinten a Root van
                         int nodeDepth = dimensionIndex[i][1] + 1;
