@@ -13,6 +13,7 @@ import hu.agnos.cube.builder.service.Step5;
 import hu.agnos.cube.Cube;
 import hu.agnos.cube.builder.entity.pre.PreCube;
 import hu.agnos.cube.builder.entity.sql.SqlCube;
+import hu.agnos.cube.measure.AbstractMeasure;
 import hu.agnos.cube.specification.entity.CubeSpecification;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -31,9 +32,8 @@ public class CubeMaker {
 
         logger.debug("cube building started");
         Cube cube = (new Step1()).createCubeWithMeta(xmlCube, cubeUniqueName, sourceTableName);
-        logger.debug("create sqlcube");
         SqlCube sqlCube = (new Step2()).getSQLCube(cube, xmlCube.getSourceDBDriver(), sourceTableName);
-
+        
         logger.debug("create precube");
         PreCube preCube = (new Step3()).getPreCube(sqlCube, cubeUniqueName, xmlCube);
         

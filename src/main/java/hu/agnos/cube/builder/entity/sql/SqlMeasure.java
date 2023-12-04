@@ -22,4 +22,5 @@ public class SqlMeasure {
     
     private final String type;
     
+    
 }
