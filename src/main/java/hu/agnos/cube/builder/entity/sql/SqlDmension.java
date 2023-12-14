@@ -7,46 +7,42 @@ package hu.agnos.cube.builder.entity.sql;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  *
  * @author parisek
  */
-public class SqlHierarchy {
+@Getter
+@Setter
+@ToString
+public class SqlDmension {
 
     private final String uniqeName;
 
     private final List<SqlLevel> levels;
 
-    private final boolean isOLAP;
+    private final boolean isOfflineCalculated;
 
-    public SqlHierarchy(String uniqeName, boolean isOLAP) {
+    public SqlDmension(String uniqeName, boolean isOfflineCalculated) {
         this.uniqeName = uniqeName;
         this.levels = new ArrayList();
-        this.isOLAP = isOLAP;
+        this.isOfflineCalculated = isOfflineCalculated;
     }
 
     public void addLevel(SqlLevel l) {
         this.levels.add(l);
     }
 
-    public List<SqlLevel> getLevels() {
-        return levels;
-    }
-
-    public SqlLevel getLevel(int idx) {
+    
+    public SqlLevel findLevelByIdx(int idx) {
         return this.levels.get(idx);
-    }
-
-    public String getUniqeName() {
-        return uniqeName;
     }
 
     public int getLastLevelIdx() {
         return this.levels.size() - 1;
     }
 
-    public boolean isOLAP() {
-        return this.isOLAP;
-    }
 }

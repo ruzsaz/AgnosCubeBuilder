@@ -3,19 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package hu.agnos.cube.builder.entity.raw;
+package hu.agnos.cube.builder.entity.pre;
 
 import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
  * @author parisek
  */
-public class RawNode {
+@Getter
+@Setter
+public class PreNode {
 
     /**
      * a dimenzió-érték hierarchián belüli mélysége. A root esetén ez 0
@@ -40,7 +44,7 @@ public class RawNode {
     /**
      * A dimenzió érték gyerekeinek tára.
      */
-    private final List<RawNode> children;
+    private final List<PreNode> children;
 
     private TIntArrayList factTableRowIds;
 
@@ -60,7 +64,7 @@ public class RawNode {
 //    private int aggregateChildId;
     private int parentId;
 
-    public RawNode(int depth, String code, String name) {
+    public PreNode(int depth, String code, String name) {
         this.depth = depth;
         this.code = code;
         this.name = name;
@@ -78,10 +82,10 @@ public class RawNode {
         this.swapId = swapId;
     }
 
-    public void addNewChild(RawNode newChild) {
+    public void addNewChild(PreNode newChild) {
         boolean isExist = false;
 //        System.out.println("addNewChild: " + toString());
-        for (RawNode existedChild : this.children) {
+        for (PreNode existedChild : this.children) {
 //            System.out.println("addNewChild gyerekkeresés...");
             if (newChild.getCode().equals(existedChild.getCode())) {
                 isExist = true;
@@ -120,14 +124,14 @@ public class RawNode {
         return name;
     }
 
-    public List<RawNode> getChildren() {
+    public List<PreNode> getChildren() {
         return children;
     }
 
-    public RawNode getChild(String code) {
-        RawNode result = null;
+    public PreNode getChild(String code) {
+        PreNode result = null;
 //        System.out.println("getChild, gyerekszám: " + this.children.size());
-        for (RawNode existedChild : this.children) {
+        for (PreNode existedChild : this.children) {
 
             if (existedChild.getCode().equals(code)) {
                 result = existedChild;
@@ -140,7 +144,7 @@ public class RawNode {
     public boolean hasChild(String code) {
         boolean result = false;
         if (!this.children.isEmpty()) {
-            for (RawNode existedChild : this.children) {
+            for (PreNode existedChild : this.children) {
                 if (existedChild.getCode().equals(code)) {
                     result = true;
                     break;
@@ -166,25 +170,25 @@ public class RawNode {
         return this.children.isEmpty();
     }
 
-    protected void reindexingInBaseLevelIdInCaseMultiHierarchies(HashMap<String, RawNode> reference, int maxDepth) {
+    protected void reindexingInBaseLevelIdInCaseMultiHierarchies(HashMap<String, PreNode> reference, int maxDepth) {
         if (this.depth == maxDepth) {
             if (reference.containsKey(this.code)) {
                 this.swapId = reference.get(code).getId();
             }
         } else {
-            for (RawNode child : this.children) {
+            for (PreNode child : this.children) {
                 child.reindexingInBaseLevelIdInCaseMultiHierarchies(reference, maxDepth);
             }
         }
     }
 
-    protected HashMap<String, RawNode> getBaseLevelReferenceAux(HashMap<String, RawNode> map, int maxDepth) {
+    protected HashMap<String, PreNode> getBaseLevelReferenceAux(HashMap<String, PreNode> map, int maxDepth) {
         if (this.depth == maxDepth) {
             if (!map.containsKey(this.code)) {
                 map.put(code, this);
             }
         } else {
-            for (RawNode child : this.children) {
+            for (PreNode child : this.children) {
                 map = child.getBaseLevelReferenceAux(map, maxDepth);
             }
         }
@@ -195,8 +199,8 @@ public class RawNode {
         return parentId;
     }
 
-    public RawNode getFirstChild() {
-        RawNode result = null;
+    public PreNode getFirstChild() {
+        PreNode result = null;
         if (!this.children.isEmpty()) {
             result = this.children.get(0);
         }
@@ -233,22 +237,25 @@ public class RawNode {
 
     public void printer() {
         System.out.println(toString());
-        for (RawNode child : this.children) {
+        for (PreNode child : this.children) {
             child.printer();
         }
     }
 
     public void indexing(int[] nodeIdsAuxArray) {
+//        System.out.println("depth: " + depth + ", nodeIdsAuxArray: " + nodeIdsAuxArray.length);
         this.id = nodeIdsAuxArray[this.depth];
+//        System.out.println("this.id: " + this.id);
         nodeIdsAuxArray[this.depth]++;
-        for (RawNode child : this.children) {
+        for (PreNode child : this.children) {
+//            System.out.println("child: " + child.toString());
             child.indexing(nodeIdsAuxArray);
         }
     }
 
     public void setParentId(int parentId) {
         this.parentId = parentId;
-        for (RawNode child : this.children) {
+        for (PreNode child : this.children) {
             child.setParentId(this.id);
         }
     }
@@ -258,7 +265,7 @@ public class RawNode {
         this.childrenId = null;
         int[] temp = new int[this.children.size()];
         int i = 0;
-        for (RawNode child : this.children) {
+        for (PreNode child : this.children) {
             int id = child.getSwapId() != -1 ? child.getSwapId() : child.getId();
             temp[i] = id;
             i++;
@@ -267,7 +274,7 @@ public class RawNode {
         Arrays.sort(temp);
         this.childrenId = temp;
 
-        for (RawNode child : this.children) {
+        for (PreNode child : this.children) {
             child.createChildreaIds();
         }
 
@@ -328,7 +335,7 @@ public class RawNode {
         this.a = result.get(0);
         this.b = result.get(1);
 
-        for (RawNode child : this.children) {
+        for (PreNode child : this.children) {
             child.createIntervals();
         }
         this.factTableRowIds = null;
@@ -346,14 +353,23 @@ public class RawNode {
             System.out.print("\t");
         }
         System.out.println(toString());
-        for (RawNode child : this.children) {
+        for (PreNode child : this.children) {
             child.print();
         }
     }
 
     @Override
     public String toString() {
-        return "RawNode{" + "depth=" + depth + ", id=" + id + ", code=" + code + ", name=" + name + ", children=" + children + ", factTableRowIds=" + factTableRowIds + ", a=" + a + ", b=" + b + ", childrenId=" + childrenId + ", swapId=" + swapId + ", parentId=" + parentId + '}';
+        
+        
+        return "RawNode{" + "depth=" + depth + ", id=" + id + ", code=" + code + ", name=" + name 
+//                + ", children=" + children 
+////                + ", factTableRowIds=" + factTableRowIds 
+                + ", a=" + a + ", b=" + b 
+////                + ", childrenId=" + childrenId 
+//                + ", swapId=" + swapId 
+//                + ", parentId=" + parentId 
+                + '}';
     }
 
     

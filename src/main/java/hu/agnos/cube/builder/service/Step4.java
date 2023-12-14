@@ -5,7 +5,7 @@
  */
 package hu.agnos.cube.builder.service;
 
-import hu.agnos.cube.builder.entity.raw.RawCube;
+import hu.agnos.cube.builder.entity.pre.PreCube;
 
 /**
  *
@@ -13,7 +13,7 @@ import hu.agnos.cube.builder.entity.raw.RawCube;
  */
 public class Step4 {
 
-    public void postProcessPreCube(RawCube preCube) {
+    public void postProcessPreCube(PreCube preCube) {
         preCube.postProcess();
     }
 

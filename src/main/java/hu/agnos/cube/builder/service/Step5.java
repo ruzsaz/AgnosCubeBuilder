@@ -5,100 +5,75 @@
  */
 package hu.agnos.cube.builder.service;
 
-import hu.agnos.molap.Cube;
-import hu.agnos.molap.dimension.Dimension;
-import hu.agnos.molap.dimension.Hierarchy;
-import hu.agnos.molap.dimension.Node;
-import hu.agnos.molap.measure.Cells;
-import hu.agnos.cube.builder.entity.raw.RawCube;
-import hu.agnos.cube.builder.entity.raw.RawDimension;
-import hu.agnos.cube.builder.entity.raw.RawHierarchy;
-import hu.agnos.cube.builder.entity.raw.RawNode;
+import hu.agnos.cube.Cube;
+import hu.agnos.cube.ClassicalCube;
+import hu.agnos.cube.CountDistinctCube;
+import hu.agnos.cube.builder.entity.pre.PreCellsFloat;
+import hu.agnos.cube.builder.entity.pre.PreCellsInt;
+import hu.agnos.cube.dimension.Dimension;
+import hu.agnos.cube.dimension.Node;
+import hu.agnos.cube.builder.entity.pre.PreCube;
+import hu.agnos.cube.builder.entity.pre.PreDimension;
+import hu.agnos.cube.builder.entity.pre.PreNode;
+import hu.agnos.cube.specification.entity.MeasureType;
 
 /**
  *
  * @author parisek
  */
 public class Step5 {
-    
+
     /**
-     * EGy RawCube valós Cube-ra konverálása
+     * EGy PreCube valós Cube-ra konverálása
+     *
      * @param cube az a Cube amelybe az adatokat töltjük
-     * @param preCube az imputadatokat tartalmazó RawCube
+     * @param preCube az imputadatokat tartalmazó PreCube
      */
-     public void convertPreCube2Cube(Cube cube, RawCube preCube) {
-
-         // a Cells átmásolása
-        cube.setCells(new Cells(preCube.getPreCells().getCells()));
-        
-        //a dimenziók és a hierarchiák átmásolása
-        for (int dimId : preCube.dimensions.keySet()) {
-            RawDimension preDim = preCube.dimensions.get(dimId);
-
-            Dimension dimension = cube.getDimensionByIdx(dimId);
-            
-            
-            boolean isFirst = true;
-            for (int hierId : preDim.getHierarchies().keySet()) {
-                RawHierarchy preHier = preDim.getHierarchies().get(hierId);
-
-                if (isFirst) {
-                    RawNode[] preBaseLevelNodes = preHier.getBaseLevelNode();
-
-                    Node[] baseLevelNodes = new Node[preBaseLevelNodes.length];
-                    for (int i = 0; i < preBaseLevelNodes.length; i++) {
-                        RawNode preNode = preBaseLevelNodes[i];
-                        if (preNode == null) {
-//                            System.out.println("preNode == null, i:" +i +", hierId: " +hierId +", dimId: " +dimId);
-                        }
-
-                        Node node = new Node(
-                                preNode.getId(),
-                                preNode.getCode(),
-                                preNode.getName(),
-                                preNode.getA(),
-                                preNode.getB(),
-                                preNode.getParentId(),
-                                preNode.getChildrenId()
-//                                preNode.getAggregateChildId()
-                        );
-                        baseLevelNodes[i] = node;
-
-                    }
-                    dimension.setBaseLevelNodes(baseLevelNodes);
-                    isFirst = false;
-
-                }
-
-                RawNode[][] preHierarchy = preHier.getHierarchy();
-                Node[][] nodeHierarchy = new Node[preHierarchy.length][];
-                for (int j = 0; j < preHierarchy.length; j++) {
-                    RawNode[] oneRowPreNodes = preHierarchy[j];
-
-                    Node[] oneRowNodes = new Node[oneRowPreNodes.length];
-
-                    for (int i = 0; i < oneRowPreNodes.length; i++) {
-                        RawNode preNode = oneRowPreNodes[i];
-                        Node node = new Node(
-                                preNode.getId(),
-                                preNode.getCode(),
-                                preNode.getName(),
-                                preNode.getA(),
-                                preNode.getB(),
-                                preNode.getParentId(),
-                                preNode.getChildrenId()
-//                                preNode.getAggregateChildId()
-                        );
-                        oneRowNodes[i] = node;
-                    }
-                    nodeHierarchy[j] = oneRowNodes;
-
-                }
-                Hierarchy hierarchy = dimension.getHierarchyByUniqueName(preHier.getHierarchyUniqeName());
-                hierarchy.setNodes(nodeHierarchy);
-
-            }
-
+    public void converPreCube2Cube(Cube cube, PreCube preCube) {
+          if (preCube.getType().equals(MeasureType.COUNT_DISTINCT.getType())) {
+              int [][] cells = ((PreCellsInt)preCube.getRawCells()).getCells();
+              ((CountDistinctCube) cube).setCells(cells);
+          }
+          else {
+                  float [][] cells = ((PreCellsFloat)preCube.getRawCells()).getCells();
+              ((ClassicalCube) cube).setCells(cells);
         }
-     }
+  
+          
+        //a dimenziók és a hierarchiák átmásolása
+//        for (int dimId : preCube.rawDimensions.keySet()) {
+//            PreDimensions rawDim = preCube.rawDimensions.get(dimId);
+        for (int hierId : preCube.getRawDimensions().keySet()) {
+            PreDimension preHier = preCube.getRawDimensions().get(hierId);
+
+            Dimension dimension = cube.getDimensions().get(hierId);
+
+            PreNode[][] preHierarchy = preHier.getNodes();
+            Node[][] nodeHierarchy = new Node[preHierarchy.length][];
+            for (int j = 0; j < preHierarchy.length; j++) {
+                PreNode[] oneRowPreNodes = preHierarchy[j];
+
+                Node[] oneRowNodes = new Node[oneRowPreNodes.length];
+
+                for (int i = 0; i < oneRowPreNodes.length; i++) {
+                    PreNode preNode = oneRowPreNodes[i];
+                    Node node = new Node(
+                            preNode.getId(),
+                            preNode.getCode(),
+                            preNode.getName(),
+                            preNode.getDepth(),
+                            preNode.getA(),
+                            preNode.getB(),
+                            preNode.getParentId(),
+                            preNode.getChildrenId()
+                    );
+                    oneRowNodes[i] = node;
+                }
+                nodeHierarchy[j] = oneRowNodes;
+            }
+            //Hierarchy hierarchy = dimension.getHierarchyByUniqueName(preHier.getHierarchyUniqeName());
+            dimension.setNodes(nodeHierarchy);
+        }
+//        }
+    }
 }

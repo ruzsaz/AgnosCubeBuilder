@@ -5,7 +5,7 @@ import hu.agnos.cube.specification.exception.InvalidPostfixExpressionException;
 import hu.agnos.cube.specification.exception.NameOfHierarchySpecificationNotUniqueException;
 import hu.agnos.cube.specification.exception.NameOfMeasureSpecificationNotUniqueException;
 import hu.agnos.cube.specification.repo.CubeSpecificationRepo;
-import hu.agnos.molap.Cube;
+import hu.agnos.cube.Cube;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
