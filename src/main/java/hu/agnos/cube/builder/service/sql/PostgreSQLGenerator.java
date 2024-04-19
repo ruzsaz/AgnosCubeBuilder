@@ -120,90 +120,132 @@ public class PostgreSQLGenerator extends SQLGenerator {
         return "drop index ORDERID_IDX";
     }
 
-    public String getCreateSQL(String prefix, SqlCube sqlCube) {
+//    public String getCreateSQL(String prefix, SqlCube sqlCube) {
+//        StringBuilder selectStatement = new StringBuilder();
+//        StringBuilder orderStatement = new StringBuilder(" order by ");
+//        int columnCnt = 0;
+////        for (SqlDimension dim : sqlCube.getDimensions()) {
+//            for (SqlDmension dim : sqlCube.getDimensions()) {
+//                for (SqlLevel level : dim.getLevels()) {
+//                    columnCnt++;
+//                }
+//            }
+////        }
+//        columnCnt *= 2;
+//
+//        sqlCube.setDimensionIndex(new int[columnCnt][]);
+//
+//        columnCnt = 0;
+////        for (int dimIdx = 0; dimIdx < sqlCube.getDimensions().size(); dimIdx++) {
+////            SqlDimension dim = sqlCube.findDimensionByIdx(dimIdx);
+//            for (int dimIdx = 0; dimIdx < sqlCube.getDimensions().size(); dimIdx++) {
+//                SqlDmension hier = sqlCube.getDimensions().get(dimIdx);
+//                for (int levelIdx = 0; levelIdx < hier.getLevels().size(); levelIdx++) {
+//                    SqlLevel level = hier.getLevels().get(levelIdx);
+//
+//                    //code
+//                    String levelCode = level.getCode();
+//                    if (levelCode.contains("#")) {
+//                        String tempLevelCode = levelCode;
+//                        tempLevelCode = tempLevelCode.replaceAll("#", " || '.' || ");
+//                        String[] levelCodeSegment = levelCode.split("#");
+//                        String lastLevelCode = levelCodeSegment[levelCodeSegment.length - 1];
+//
+//                        if (hier.isOfflineCalculated()) {
+//                            String caseClause = "case\n"
+//                                    + "    when " + lastLevelCode + " like 'All' then 'All'\n"
+//                                    + "    else " + tempLevelCode + "\n"
+//                                    + "end";
+//                            tempLevelCode = caseClause;
+//                        }
+//
+//                        selectStatement.append(tempLevelCode.toUpperCase());
+//
+//                        int[] oneRow = new int[]{dimIdx, levelIdx};
+//                        sqlCube.getDimensionIndex()[columnCnt] = oneRow;
+//                        columnCnt++;
+//
+//                        selectStatement.append(" as ").append("COM_").append(lastLevelCode.toUpperCase());
+//
+//                        selectStatement.append(", ");
+//                        orderStatement.append(tempLevelCode.toUpperCase()).append(", ");
+//
+//                    } else {
+//                        selectStatement.append(level.getCode().toUpperCase());
+//
+//                        int[] oneRow = new int[]{dimIdx, levelIdx};
+//                        sqlCube.getDimensionIndex()[columnCnt] = oneRow;
+//                        columnCnt++;
+//
+//                        selectStatement.append(", ");
+//                        orderStatement.append(level.getCode().toUpperCase()).append(", ");
+//                    }
+//
+//                    //name
+//                    selectStatement.append(level.getName().toUpperCase());
+//
+//                    int[] oneRow = new int[]{dimIdx, levelIdx};
+//                    sqlCube.getDimensionIndex()[columnCnt] = oneRow;
+//                    columnCnt++;
+//
+//                    selectStatement.append(", ");
+//                }
+//            }
+//        //}
+//
+//        for (SqlMeasure measure : sqlCube.getMeasures()) {
+//            selectStatement.append(measure.getName().toUpperCase()).append(", ");
+//            orderStatement.append(measure.getName().toUpperCase()).append(", ");
+//        }
+//
+//        StringBuilder result = new StringBuilder("create table ").append(getFullyQualifiedTableNameWithPrefix(prefix, sqlCube.getSourceTableName().toUpperCase())).append(" as\n select row_number() over ( ");
+//        result.append(orderStatement.substring(0, orderStatement.length() - 2)).append(") as orderid,\n");
+//        result.append(selectStatement.substring(0, selectStatement.length() - 2)).append('\n');
+//        result.append(" from ").append(sqlCube.getSourceTableName()).append('\n');
+//        result.append(orderStatement.substring(0, orderStatement.length() - 2));
+//        return result.toString();
+//    }
+    
+      public String getCreateSQL(String prefix, SqlCube sqlCube) {
         StringBuilder selectStatement = new StringBuilder();
         StringBuilder orderStatement = new StringBuilder(" order by ");
-        int columnCnt = 0;
-//        for (SqlDimension dim : sqlCube.getDimensions()) {
-            for (SqlDmension dim : sqlCube.getDimensions()) {
-                for (SqlLevel level : dim.getLevels()) {
-                    columnCnt++;
+
+        for (SqlDmension dim : sqlCube.getDimensions()) {
+            for (SqlLevel level : dim.getLevels()) {
+                //code
+                selectStatement
+                        .append(level.getCode().toUpperCase())
+                        .append(", ");;
+
+                orderStatement
+                        .append(level.getCode()
+                                .toUpperCase()).append(", ");
+
+                //name
+                selectStatement.append(level.getName().toUpperCase());
+
+                if (level.getName().toUpperCase().equals(level.getCode().toUpperCase())) {
+                    selectStatement.append(" as ").append(level.getName().toUpperCase()).append("_NAME");
                 }
+
+                selectStatement.append(", ");
             }
-//        }
-        columnCnt *= 2;
+        }
 
-        sqlCube.setDimensionIndex(new int[columnCnt][]);
-
-        columnCnt = 0;
-//        for (int dimIdx = 0; dimIdx < sqlCube.getDimensions().size(); dimIdx++) {
-//            SqlDimension dim = sqlCube.findDimensionByIdx(dimIdx);
-            for (int dimIdx = 0; dimIdx < sqlCube.getDimensions().size(); dimIdx++) {
-                SqlDmension hier = sqlCube.getDimensions().get(dimIdx);
-                for (int levelIdx = 0; levelIdx < hier.getLevels().size(); levelIdx++) {
-                    SqlLevel level = hier.getLevels().get(levelIdx);
-
-                    //code
-                    String levelCode = level.getCode();
-                    if (levelCode.contains("#")) {
-                        String tempLevelCode = levelCode;
-                        tempLevelCode = tempLevelCode.replaceAll("#", " || '.' || ");
-                        String[] levelCodeSegment = levelCode.split("#");
-                        String lastLevelCode = levelCodeSegment[levelCodeSegment.length - 1];
-
-                        if (hier.isOfflineCalculated()) {
-                            String caseClause = "case\n"
-                                    + "    when " + lastLevelCode + " like 'All' then 'All'\n"
-                                    + "    else " + tempLevelCode + "\n"
-                                    + "end";
-                            tempLevelCode = caseClause;
-                        }
-
-                        selectStatement.append(tempLevelCode.toUpperCase());
-
-                        int[] oneRow = new int[]{dimIdx, levelIdx};
-                        sqlCube.getDimensionIndex()[columnCnt] = oneRow;
-                        columnCnt++;
-
-                        selectStatement.append(" as ").append("COM_").append(lastLevelCode.toUpperCase());
-
-                        selectStatement.append(", ");
-                        orderStatement.append(tempLevelCode.toUpperCase()).append(", ");
-
-                    } else {
-                        selectStatement.append(level.getCode().toUpperCase());
-
-                        int[] oneRow = new int[]{dimIdx, levelIdx};
-                        sqlCube.getDimensionIndex()[columnCnt] = oneRow;
-                        columnCnt++;
-
-                        selectStatement.append(", ");
-                        orderStatement.append(level.getCode().toUpperCase()).append(", ");
-                    }
-
-                    //name
-                    selectStatement.append(level.getName().toUpperCase());
-
-                    int[] oneRow = new int[]{dimIdx, levelIdx};
-                    sqlCube.getDimensionIndex()[columnCnt] = oneRow;
-                    columnCnt++;
-
-                    selectStatement.append(", ");
-                }
-            }
-        //}
-
+        
         for (SqlMeasure measure : sqlCube.getMeasures()) {
             selectStatement.append(measure.getName().toUpperCase()).append(", ");
             orderStatement.append(measure.getName().toUpperCase()).append(", ");
         }
 
-        StringBuilder result = new StringBuilder("create table ").append(getFullyQualifiedTableNameWithPrefix(prefix, sqlCube.getSourceTableName().toUpperCase())).append(" as\n select row_number() over ( ");
+        StringBuilder result = new StringBuilder("select row_number() over ( ");
         result.append(orderStatement.substring(0, orderStatement.length() - 2)).append(") as orderid,\n");
         result.append(selectStatement.substring(0, selectStatement.length() - 2)).append('\n');
-        result.append(" from ").append(sqlCube.getSourceTableName()).append('\n');
+        result.append("into ").append(getFullyQualifiedTableNameWithPrefix(prefix, sqlCube.getSourceTableName().toUpperCase())).append('\n');
+        result.append("from ").append(sqlCube.getSourceTableName()).append('\n');
         result.append(orderStatement.substring(0, orderStatement.length() - 2));
         return result.toString();
+
     }
 
     public String getLoadSQLSubSelectColumnList(CubeSpecification xmlCube) {

@@ -49,17 +49,17 @@ public class Step3 {
     public PreCube getPreCube(SqlCube sqlCube, String cubeUniqueName, CubeSpecification xmlCub) throws ClassNotFoundException {
 
         String dropTableSQL = sqlCube.getDropSQL();
-        //System.out.println("sql11112: " + dropTableSQL);
+//        System.out.println("sql11112: " + dropTableSQL);
         DBConector.slientExecuteQuery(dropTableSQL, xmlCub.getSourceDBUser(), xmlCub.getSourceDBPassword(), xmlCub.getSourceDBURL(), xmlCub.getSourceDBDriver());
 
         String createSQL = sqlCube.getCreateSQL();
-        //System.out.println("sql11113: " + createSQL);
+//        System.out.println("sql11113: " + createSQL);
 
         String dropIndexSQL = sqlCube.getDropIndexSQL();
-        //System.out.println("sql11116: " + dropIndexSQL);
+//        System.out.println("sql11116: " + dropIndexSQL);
 
         String createIndexSQL = sqlCube.getCreateIndexSQL();
-        //System.out.println("sql11117: " + createIndexSQL);
+//        System.out.println("sql11117: " + createIndexSQL);
 
         String countSQL = "SELECT COUNT(1) FROM " + sqlCube.getSourceTableName();
 
